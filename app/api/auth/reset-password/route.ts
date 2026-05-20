@@ -1,0 +1,29 @@
+import { NextRequest, NextResponse } from "next/server";
+
+const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:3000";
+
+export async function POST(req: NextRequest) {
+  let body: { token?: string; password?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ message: "גוף הבקשה אינו תקין" }, { status: 400 });
+  }
+
+  let backendRes: Response;
+  try {
+    backendRes = await fetch(`${BACKEND_URL}/api/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    return NextResponse.json(
+      { message: "שגיאת חיבור לשרת — נסה שוב מאוחר יותר" },
+      { status: 503 }
+    );
+  }
+
+  const data = await backendRes.json();
+  return NextResponse.json(data, { status: backendRes.status });
+}
