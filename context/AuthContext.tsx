@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Rehydrate session from HttpOnly cookie via the /api/auth/me route
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`)
+    fetch("/api/auth/me")
       .then((r) => (r.ok ? (r.json() as Promise<AuthUser>) : null))
       .then((data) => setUser(data ?? null))
       .catch(() => setUser(null))
