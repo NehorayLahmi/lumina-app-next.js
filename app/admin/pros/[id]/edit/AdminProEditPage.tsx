@@ -42,17 +42,17 @@ interface FormState {
 
 // ─── Color tokens ─────────────────────────────────────────────────────────────
 const C = {
-  bg: "#1d0c26",
-  surface: "#2a1933",
-  surfaceVar: "#341e40",
+  bg: "#15171c",
+  surface: "#1c1e24",
+  surfaceVar: "#21242b",
   primary: "#deb9f4",
   secondary: "#c89af0",
   tertiary: "#00daf7",
   error: "#ffb4ab",
   success: "#6df5b8",
   onSurface: "#f0deff",
-  outlineVar: "#6b4d7a",
-  overlay: "rgba(29,12,38,0.92)",
+  outlineVar: "#3a3d46",
+  overlay: "rgba(15,17,20,0.92)",
   adminAccent: "#fface8",
 };
 
@@ -411,7 +411,7 @@ export default function AdminProEditPage({ proId }: { proId: string }) {
       <div dir="rtl" style={{ minHeight: "100svh", background: C.bg, fontFamily: "var(--font-outfit, sans-serif)" }}>
 
         {/* ── Header ── */}
-        <div style={{ position: "sticky", top: 0, zIndex: 50, background: `${C.bg}e8`, backdropFilter: "blur(20px)", borderBottom: `1px solid ${C.outlineVar}33`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px" }}>
+        <div style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(30,32,40,0.92)", backdropFilter: "blur(20px)", borderBottom: `1px solid ${C.outlineVar}55`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px" }}>
 
           {/* Back to admin */}
           <button onClick={() => router.push("/admin")} style={{ background: "none", border: "none", color: C.adminAccent, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 13, padding: 0 }}>
@@ -547,7 +547,7 @@ export default function AdminProEditPage({ proId }: { proId: string }) {
           </SectionCard>
 
           {/* Floating save */}
-          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "12px 16px", background: `${C.bg}e8`, backdropFilter: "blur(20px)", borderTop: `1px solid ${C.outlineVar}33`, zIndex: 50 }}>
+          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "12px 16px", background: "rgba(30,32,40,0.92)", backdropFilter: "blur(20px)", borderTop: `1px solid ${C.outlineVar}55`, zIndex: 50 }}>
             <button
               onClick={handleSave}
               disabled={saving || !selectedId}

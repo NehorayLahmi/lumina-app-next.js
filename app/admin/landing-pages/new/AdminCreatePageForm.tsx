@@ -25,11 +25,11 @@ interface FormState {
 
 // ─── Color tokens ─────────────────────────────────────────────────────────────
 const C = {
-  bg: "#1d0c26", surface: "#2a1933", surfaceVar: "#341e40",
+  bg: "#15171c", surface: "#1c1e24", surfaceVar: "#21242b",
   primary: "#deb9f4", secondary: "#c89af0", tertiary: "#00daf7",
   error: "#ffb4ab", success: "#6df5b8",
-  onSurface: "#f0deff", outlineVar: "#6b4d7a",
-  overlay: "rgba(29,12,38,0.92)", adminAccent: "#fface8",
+  onSurface: "#f0deff", outlineVar: "#3a3d46",
+  overlay: "rgba(15,17,20,0.92)", adminAccent: "#fface8",
 };
 
 // ─── Shared UI ────────────────────────────────────────────────────────────────

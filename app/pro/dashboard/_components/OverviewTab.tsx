@@ -54,7 +54,7 @@ export function OverviewTab({ pro, monthlyLeads, monthlyCalls, monthlyTotal, act
             style={{ flex: 1, height: 38, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: `linear-gradient(135deg,rgba(0,218,247,0.12),rgba(0,218,247,0.06))`, border: `1px solid ${C.tertiary}44`, borderRadius: 10, color: C.tertiary, fontSize: 12, fontWeight: 700, textDecoration: "none" }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 14 }}>open_in_new</span>
-            צפה באתר החי ↗
+            צפה באתר  ↗
           </a>
           <a
             href="/pro/edit"

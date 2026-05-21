@@ -6,16 +6,16 @@ import { useRouter } from "next/navigation";
 import { PROFESSIONS, CITIES } from "@/lib/options";
 
 const C = {
-  bg:           "#151120",
+  bg:           "#15171c",
   primary:      "#d7baff",
   secondary:    "#e0b6ff",
   tertiary:     "#5bd5fc",
   onSurface:    "#e7dff5",
   onSurfaceVar: "#ccc3d3",
   outline:      "#968e9c",
-  outlineVar:   "#4a4451",
-  onPrimary:    "#411478",
-  surfaceLow:   "#100c1a",
+  outlineVar:   "#2e3139",
+  onPrimary:    "#0f1115",
+  surfaceLow:   "#0f1115",
 };
 
 // ── Reusable field wrapper ────────────────────────────────────────────────────
@@ -445,11 +445,11 @@ export default function RegisterPage() {
         onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.4"; }}
       >
-        <div style={{ height: 1, width: 48, background: "linear-gradient(to left, #4a4451, transparent)" }} />
+        <div style={{ height: 1, width: 48, background: "linear-gradient(to left, #2e3139, transparent)" }} />
         <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: "0.2em", color: C.onSurfaceVar }}>
           SECURITY ENCRYPTED
         </span>
-        <div style={{ height: 1, width: 48, background: "linear-gradient(to right, #4a4451, transparent)" }} />
+        <div style={{ height: 1, width: 48, background: "linear-gradient(to right, #2e3139, transparent)" }} />
       </footer>
     </div>
   );

@@ -36,17 +36,17 @@ interface FormState {
 
 // ─── Color tokens ─────────────────────────────────────────────────────────────
 const C = {
-  bg: "#1d0c26",
-  surface: "#2a1933",
-  surfaceVar: "#341e40",
+  bg: "#15171c",
+  surface: "#1c1e24",
+  surfaceVar: "#21242b",
   primary: "#deb9f4",
   secondary: "#c89af0",
   tertiary: "#00daf7",
   error: "#ffb4ab",
   success: "#6df5b8",
   onSurface: "#f0deff",
-  outlineVar: "#6b4d7a",
-  overlay: "rgba(29,12,38,0.92)",
+  outlineVar: "#3a3d46",
+  overlay: "rgba(15,17,20,0.92)",
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -851,9 +851,9 @@ export default function ProEditPage() {
             position: "sticky",
             top: 0,
             zIndex: 50,
-            background: `${C.bg}e8`,
+            background: "rgba(30,32,40,0.92)",
             backdropFilter: "blur(20px)",
-            borderBottom: `1px solid ${C.outlineVar}33`,
+            borderBottom: `1px solid ${C.outlineVar}55`,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -1231,9 +1231,9 @@ export default function ProEditPage() {
               left: 0,
               right: 0,
               padding: "12px 16px",
-              background: `${C.bg}e8`,
+              background: "rgba(30,32,40,0.92)",
               backdropFilter: "blur(20px)",
-              borderTop: `1px solid ${C.outlineVar}33`,
+              borderTop: `1px solid ${C.outlineVar}55`,
               zIndex: 50,
             }}
           >

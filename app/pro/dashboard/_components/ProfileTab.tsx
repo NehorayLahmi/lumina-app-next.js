@@ -27,7 +27,7 @@ export function ProfileTab({ pro, email, toggling, onToggle, onLogout }: Props) 
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {/* Avatar */}
       <div className="pro-glass" style={{ borderRadius: 24, padding: "28px 20px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: -30, left: "50%", transform: "translateX(-50%)", width: 120, height: 120, background: "rgba(222,185,244,0.1)", filter: "blur(40px)", borderRadius: "50%" }} />
+        <div style={{ position: "absolute", top: -30, left: "50%", transform: "translateX(-50%)", width: 120, height: 120, background: "rgba(21,23,28,0.6)", filter: "blur(40px)", borderRadius: "50%" }} />
         <div style={{ width: 64, height: 64, borderRadius: "50%", background: `linear-gradient(135deg, ${C.primary}, ${C.tertiary})`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px", fontSize: 22, fontWeight: 700, color: C.onPrimary, fontFamily: "var(--font-outfit), 'Outfit', sans-serif" }}>
           {pro.firstName[0]}{pro.lastName[0]}
         </div>
@@ -40,7 +40,7 @@ export function ProfileTab({ pro, email, toggling, onToggle, onLogout }: Props) 
         <div>
           <p style={{ fontSize: 14, fontWeight: 600, color: C.onSurface }}>קבלת לידים</p>
           <p style={{ fontSize: 11, color: pro.adminLocked ? "#ffb4ab" : pro.isActive ? C.tertiary : C.onSurfVar }}>
-            {pro.adminLocked ? "הושבת על ידי מנהל המערכת" : pro.isActive ? "פעיל — מקבל לידים" : "לא פעיל"}
+            {pro.adminLocked ? "הושבת על ידי מנהל המערכת" : pro.isActive ? "פעיל" : "לא פעיל"}
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

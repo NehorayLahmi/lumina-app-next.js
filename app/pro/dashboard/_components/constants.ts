@@ -1,17 +1,17 @@
 export const C = {
-  bg:          "#1d0c26",
+  bg:          "#15171c",
   primary:     "#deb9f4",
   secondary:   "#fface8",
   tertiary:    "#00daf7",
   onSurface:   "#f4dafe",
   onSurfVar:   "#cdc3ce",
-  surface:     "#2a1933",
-  surfLow:     "#25152f",
-  surfLowest:  "#170720",
-  surfHigh:    "#35233e",
-  surfHighest: "#402e49",
-  outlineVar:  "#4b444d",
-  onPrimary:   "#412454",
+  surface:     "#1c1e24",
+  surfLow:     "#191b21",
+  surfLowest:  "#0f1115",
+  surfHigh:    "#21242b",
+  surfHighest: "#272a32",
+  outlineVar:  "#2e3139",
+  onPrimary:   "#0f1115",
 };
 
 export const STATUS_LABELS: Record<string, string> = {

@@ -89,7 +89,7 @@ export default function DashboardClient({ email }: { email: string }) {
       {/* Header */}
       <header style={{
         position: "sticky", top: 0, zIndex: 50,
-        background: "rgba(23, 7, 32, 0.65)",
+        background: "rgba(37, 41, 43, 0.65)",
         backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
         borderBottom: "1px solid rgba(255,255,255,0.07)",
         display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -134,7 +134,7 @@ export default function DashboardClient({ email }: { email: string }) {
         position: "fixed", bottom: 0, width: "100%", zIndex: 50,
         display: "flex", justifyContent: "space-around", alignItems: "center",
         padding: "8px 20px 20px",
-        background: "rgba(53, 35, 62, 0.7)",
+        background: "rgba(37, 41, 43, 0.65)",
         backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
         borderTop: "1px solid rgba(255,255,255,0.07)",
         borderTopLeftRadius: 28, borderTopRightRadius: 28,
@@ -145,7 +145,7 @@ export default function DashboardClient({ email }: { email: string }) {
             <button key={key} onClick={() => setTab(key)} style={{
               background: "none", border: "none", cursor: "pointer",
               display: "flex", flexDirection: "column", alignItems: "center", gap: 2, padding: "4px 16px",
-              color: active ? C.tertiary : "rgba(205,195,206,0.45)",
+              color: active ? C.tertiary : "rgba(195, 206, 206, 0.78)",
               filter: active ? `drop-shadow(0 0 6px ${C.tertiary})` : "none",
               transition: "color 0.2s, filter 0.2s",
             }}>

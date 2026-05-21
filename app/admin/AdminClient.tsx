@@ -62,7 +62,7 @@ export default function AdminClient() {
   return (
     <div style={{ backgroundColor: C.bg, minHeight: "100vh", direction: "rtl" }}>
       {/* Tab bar */}
-      <div style={{ position: "sticky", top: 60, zIndex: 40, background: "rgba(29,12,38,0.85)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${C.outlineVar}44`, padding: "8px 20px 0" }}>
+      <div style={{ position: "sticky", top: 60, zIndex: 40, background: "rgba(21,23,28,0.85)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${C.outlineVar}44`, padding: "8px 20px 0" }}>
         <div style={{ display: "flex", gap: 4, overflowX: "auto" }}>
           {TABS.map(({ key, icon, label }) => {
             const active = tab === key;

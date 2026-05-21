@@ -7,16 +7,16 @@ import { useAuth } from "@/context/AuthContext";
 
 // ── Color tokens ────────────────────────────────────────────────────────────
 const C = {
-  bg:           "#151120",
+  bg:           "#15171c",
   primary:      "#d7baff",
   secondary:    "#e0b6ff",
   tertiary:     "#5bd5fc",
   onSurface:    "#e7dff5",
   onSurfaceVar: "#ccc3d3",
-  onPrimary:    "#411478",
-  surface:      "#211d2d",
-  surfaceLow:   "#100c1a",
-  outlineVar:   "#4a4451",
+  onPrimary:    "#0f1115",
+  surface:      "#1c1e24",
+  surfaceLow:   "#0f1115",
+  outlineVar:   "#2e3139",
 };
 
 function LoginForm() {
