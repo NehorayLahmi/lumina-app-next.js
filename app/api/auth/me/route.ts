@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? "fallback_dev_secret_change_me"
-);
+if (!process.env.JWT_SECRET) {
+  throw new Error("MISSING JWT_SECRET: הגדר משתנה סביבה JWT_SECRET!");
+}
+
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function GET(req: NextRequest) {
   const token = req.cookies.get("auth_token")?.value;

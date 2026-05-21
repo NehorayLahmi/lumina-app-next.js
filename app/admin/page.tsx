@@ -2,23 +2,45 @@ import { redirect } from "next/navigation";
 import { getAuthUser } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
 import AdminClient from "./AdminClient";
+import { C } from "./_components/constants";
 
-export const metadata = { title: "פאנל ניהול — מערכת לידים" };
+export const metadata = { title: "פאנל ניהול - מערכת לידים" };
 
 export default async function AdminPage() {
   const user = await getAuthUser();
   if (!user || user.role !== "ADMIN") redirect("/login");
 
   return (
-    <main className="min-h-screen bg-gray-50" dir="rtl">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">פאנל ניהול</h1>
-          <p className="text-xs text-gray-400">{user.email}</p>
+    <main style={{ minHeight: "100vh", backgroundColor: C.bg, direction: "rtl" }}>
+      <header style={{
+        position: "sticky", top: 0, zIndex: 50,
+        background: "rgba(29,12,38,0.85)", backdropFilter: "blur(16px)",
+        borderBottom: `1px solid ${C.outlineVar}44`,
+        padding: "12px 24px",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span className="material-symbols-outlined" style={{
+            fontSize: 22, color: C.primary,
+            fontVariationSettings: "'FILL' 1",
+          }}>admin_panel_settings</span>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: C.onSurface }}>
+              ניהול נתונים
+            </h1>
+            <p style={{ margin: 0, fontSize: 11, color: C.onSurfVar }}>{user.email}</p>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs bg-indigo-100 text-indigo-700 font-semibold px-2.5 py-1 rounded-full">
-            מנהל מערכת
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{
+            fontSize: 11, fontWeight: 700,
+            background: `${C.tertiary}22`,
+            color: C.tertiary,
+            border: `1px solid ${C.tertiary}55`,
+            padding: "3px 10px", borderRadius: 999,
+          }}>
+            מנהל על
           </span>
           <LogoutButton />
         </div>
