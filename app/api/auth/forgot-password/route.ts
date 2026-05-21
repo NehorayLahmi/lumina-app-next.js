@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:3000";
+import { BACKEND_URL } from "@/lib/config";
 
 export async function POST(req: NextRequest) {
   let body: { email?: string };

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/auth";
-
-const BACKEND = process.env.BACKEND_URL ?? "http://localhost:3000";
+import { BACKEND_URL as BACKEND } from "@/lib/config";
 
 export async function PATCH(req: NextRequest) {
   const user = await getAuthUser();

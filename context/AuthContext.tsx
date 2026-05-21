@@ -12,9 +12,8 @@ import {
 export interface AuthUser {
   userId: string;
   email: string;
-  firstName: string | null;
-  lastName: string | null;
   role: "ADMIN" | "PRO";
+  proProfileId: string | null;
 }
 
 interface AuthContextValue {
@@ -56,13 +55,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!res.ok) return { error: data.message ?? "התחברות נכשלה" };
 
-      // Backend returns { id, email, role } — normalize id → userId
       const authUser: AuthUser = {
-        userId: data.user.id,
+        userId: data.user.id ?? data.user.userId,
         email: data.user.email,
-        firstName: data.user.firstName ?? null,
-        lastName: data.user.lastName ?? null,
         role: data.user.role,
+        proProfileId: data.user.proProfile?.id ?? data.user.proProfileId ?? null,
       };
       setUser(authUser);
       return { user: authUser };

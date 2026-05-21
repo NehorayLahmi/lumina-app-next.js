@@ -17,9 +17,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       userId: payload.userId as string,
       email: payload.email as string,
-      firstName: (payload.firstName as string) ?? null,
-      lastName: (payload.lastName as string) ?? null,
       role: payload.role as string,
+      proProfileId: (payload.proProfileId as string) ?? null,
     });
   } catch {
     return NextResponse.json(

@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getAuthUser } from "@/lib/auth";
-
-const BACKEND = process.env.BACKEND_URL ?? "http://localhost:3000";
+import { BACKEND_URL as BACKEND } from "@/lib/config";
 
 export async function adminProxy(
   path: string,
