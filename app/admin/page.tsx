@@ -14,7 +14,7 @@ export default async function AdminPage() {
     <main style={{ minHeight: "100vh", backgroundColor: C.bg, direction: "rtl" }}>
       <header style={{
         position: "sticky", top: 0, zIndex: 50,
-        background: "rgba(29,12,38,0.85)", backdropFilter: "blur(16px)",
+        background: "rgba(37, 41, 43, 0.65)", backdropFilter: "blur(16px)",
         borderBottom: `1px solid ${C.outlineVar}44`,
         padding: "12px 24px",
         display: "flex", alignItems: "center", justifyContent: "space-between",

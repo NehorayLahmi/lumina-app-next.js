@@ -7,16 +7,16 @@ export function OverviewTab({ stats }: { stats: Stats | null }) {
   if (!stats) return null;
 
   const cards = [
-    { icon: "description", label: 'סה"כ לידים',    value: stats.totalLeads.toLocaleString(),    color: C.primary },
-    { icon: "call",        label: 'סה"כ שיחות',    value: stats.totalCalls.toLocaleString(),    color: C.tertiary },
-    { icon: "warning",     label: "שיחות Fallback", value: stats.fallbackCalls.toLocaleString(), color: C.secondary },
-    { icon: "group",       label: "נציגים פעילים",  value: stats.activePros.toLocaleString(),    color: C.tertiary },
+    { icon: "description", label: 'סה"כ לידים', value: stats.totalLeads.toLocaleString(), color: C.primary },
+    { icon: "call", label: 'סה"כ שיחות', value: stats.totalCalls.toLocaleString(), color: C.tertiary },
+    { icon: "warning", label: "שיחות Fallback", value: stats.fallbackCalls.toLocaleString(), color: C.secondary },
+    { icon: "group", label: "נציגים פעילים", value: stats.activePros.toLocaleString(), color: C.tertiary },
   ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {/* Hero revenue */}
-      <section className="pro-glass pro-fade" style={{ borderRadius: 32, padding: "28px 24px", position: "relative", overflow: "hidden" }}>
+      <section className="pro-glass pro-fade" style={{ borderRadius: 32, padding: "28px 24px", position: "relative", overflow: "hidden", transform: "translateZ(0)", WebkitMaskImage: "-webkit-radial-gradient(white, black)" }}>
         <div style={{ position: "absolute", top: -40, left: -40, width: 200, height: 200, background: "rgba(0,218,247,0.12)", filter: "blur(60px)", borderRadius: "50%" }} />
         <div style={{ position: "absolute", bottom: -40, right: -40, width: 200, height: 200, background: "rgba(255,172,232,0.12)", filter: "blur(60px)", borderRadius: "50%" }} />
         <p style={{ fontSize: 10, letterSpacing: "0.15em", textTransform: "uppercase", color: C.onSurfVar, fontWeight: 700, marginBottom: 6 }}>הכנסה כוללת</p>

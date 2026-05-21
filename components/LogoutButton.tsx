@@ -14,9 +14,10 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="text-xs text-gray-500 hover:text-red-600 border border-gray-200 hover:border-red-200 px-2.5 py-1 rounded-md transition-colors"
+      title="התנתק"
+      className="text-gray-400 hover:text-red-500 border border-gray-700 hover:border-red-500 p-1.5 rounded-4xl transition-colors flex items-center justify-center"
     >
-      התנתק
+      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>logout</span>
     </button>
   );
 }
