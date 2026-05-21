@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? "fallback_dev_secret_change_me"
-);
+// שימוש במשתנה ה-env המדויק שלך מהקובץ
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:10000";
 
 export async function GET(req: NextRequest) {
+  // 1. שליפת עוגיית ה-auth_token מהדפדפן
   const token = req.cookies.get("auth_token")?.value;
 
   if (!token) {
@@ -13,17 +12,35 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return NextResponse.json({
-      userId: payload.userId as string,
-      email: payload.email as string,
-      role: payload.role as string,
-      proProfileId: (payload.proProfileId as string) ?? null,
+    // 2. שליחת בקשה לשרת ב-Render (בעזרת ה-env שלך) לאימות הטוקן
+    const backendRes = await fetch(`${BACKEND_URL}/api/auth/me`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`, // זריקת הטוקן כ-Bearer
+        "Cookie": `auth_token=${token}`     // וגם כעוגייה לגיבוי
+      },
     });
-  } catch {
+
+    const data = await backendRes.json();
+
+    // אם השרת ברנדר החזיר שגיאה (הטוקן לא בתוקף או פג)
+    if (!backendRes.ok) {
+      return NextResponse.json(
+        { message: data.message ?? "אימות נכשל מול השרת" },
+        { status: backendRes.status }
+      );
+    }
+
+    // 3. הכל תקין! מחזירים את אובייקט המשתמש שחזר מרנדר
+    // שים לב: לפי קוד הבאקאנד שלך, המידע חוזר בתוך אובייקט בשם user (כמו res.json({ user }))
+    return NextResponse.json(data.user);
+    
+  } catch (error) {
+    console.error("Error in /api/auth/me proxy:", error);
     return NextResponse.json(
-      { message: "טוקן לא תקין או פג תוקף" },
-      { status: 401 }
+      { message: "שגיאת תקשורת עם שרת האימות" },
+      { status: 500 }
     );
   }
 }
