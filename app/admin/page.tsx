@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getAuthUser } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
 import AdminClient from "./AdminClient";
@@ -6,7 +7,7 @@ export const metadata = { title: "פאנל ניהול — מערכת לידים"
 
 export default async function AdminPage() {
   const user = await getAuthUser();
-  if (!user) return null;
+  if (!user || user.role !== "ADMIN") redirect("/login");
 
   return (
     <main className="min-h-screen bg-gray-50" dir="rtl">
