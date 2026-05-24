@@ -13,6 +13,8 @@ export interface LandingPageData {
   createdAt: string;
   updatedAt: string;
   pro: {
+    firstName: string;
+    lastName: string;
     name: string;
     phone: string;
     city: string;

@@ -6,7 +6,7 @@ import { CITIES, PROFESSIONS } from "@/lib/options";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface GalleryItem { url: string; publicId: string; }
-interface ProOption   { id: string; firstName: string; lastName: string; city: string; profession: string; }
+interface ProOption   { id: string; firstName: string; lastName: string; phone: string; city: string; profession: string; }
 
 interface FormState {
   mainTitle: string;
@@ -298,6 +298,17 @@ export default function AdminCreatePageForm() {
     <div style={{ width: 18, height: 18, border: `2.5px solid ${C.outlineVar}`, borderTopColor: C.tertiary, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
   );
 
+  function handleProChange(proId: string) {
+    const pro = pros.find(p => p.id === proId);
+    setForm(f => ({
+      ...f,
+      proId,
+      city:         pro?.city       ?? f.city,
+      profession:   pro?.profession ?? f.profession,
+      twilioNumber: pro?.phone      ?? f.twilioNumber,
+    }));
+  }
+
   const proOptions = pros.map(p => ({ value: p.id, label: `${p.firstName} ${p.lastName} · ${p.city}` }));
 
   return (
@@ -344,6 +355,18 @@ export default function AdminCreatePageForm() {
         {/* ── Form ── */}
         <div style={{ padding: "16px 16px 100px" }}>
 
+          {/* Assign Pro — first so selecting a pro auto-fills city/profession/phone */}
+          <SectionCard title="שיוך נציג" icon="engineering">
+            <StyledSelect
+              label="נציג *"
+              value={form.proId}
+              onChange={handleProChange}
+              options={proOptions}
+              placeholder={pros.length === 0 ? "טוען נציגים..." : "בחר נציג..."}
+            />
+
+          </SectionCard>
+
           {/* Content */}
           <SectionCard title="תוכן הדף" icon="text_fields">
             <StyledInput label="כותרת ראשית *" value={form.mainTitle} onChange={v => setForm(f => ({ ...f, mainTitle: v }))} placeholder="למשל: שירות אינסטלציה מקצועי בתל אביב" />
@@ -351,29 +374,19 @@ export default function AdminCreatePageForm() {
             <StyledInput label="תיאור" value={form.description} onChange={v => setForm(f => ({ ...f, description: v }))} multiline rows={5} placeholder="תיאור מפורט של השירותים..." />
           </SectionCard>
 
-          {/* Settings */}
+          {/* Settings — auto-filled from pro, editable if needed */}
           <SectionCard title="הגדרות עמוד" icon="settings">
             <StyledSelect label="עיר *" value={form.city} onChange={v => setForm(f => ({ ...f, city: v }))} options={CITIES} placeholder="בחר עיר..." />
             <StyledSelect label="מקצוע *" value={form.profession} onChange={v => setForm(f => ({ ...f, profession: v }))} options={PROFESSIONS} placeholder="בחר מקצוע..." />
           </SectionCard>
 
-          {/* Twilio */}
-          <SectionCard title="מספר טויליו" icon="call">
-            <StyledInput label="מספר טלפון טויליו *" value={form.twilioNumber} onChange={v => setForm(f => ({ ...f, twilioNumber: v }))} placeholder="לדוגמה: 0723334455" />
+          {/* Phone — auto-filled from pro, editable */}
+          <SectionCard title="מספר טלפון" icon="call">
+            <StyledInput label="מספר טלפון *" value={form.twilioNumber} onChange={v => setForm(f => ({ ...f, twilioNumber: v }))} placeholder="לדוגמה: 0539596094" />
             <p style={{ color: `${C.onSurface}66`, fontSize: 11, margin: "-8px 0 0", lineHeight: 1.5 }}>
-              המספר ישמש לניתוב שיחות ולהצגה בדף הנחיתה. הזן בפורמט ישראלי (0XXXXXXXXX).
+              המספר יוצג בדף הנחיתה ולקוחות יוכלו להתקשר ישירות.
             </p>
-          </SectionCard>
-
-          {/* Assign Pro */}
-          <SectionCard title="שיוך נציג" icon="engineering">
-            <StyledSelect
-              label="נציג *"
-              value={form.proId}
-              onChange={v => setForm(f => ({ ...f, proId: v }))}
-              options={proOptions}
-              placeholder={pros.length === 0 ? "טוען נציגים..." : "בחר נציג..."}
-            />
+            {/* twilioNumber — השדה שמור עם שם זה ב-DB, מכיל כרגע מספר אמיתי של הנציג */}
           </SectionCard>
 
           {/* Hero image */}

@@ -5,10 +5,11 @@ import { Rubik } from "next/font/google";
 import type { LandingPageData } from "@/types/landing";
 import { LeadForm } from "./_components/LeadForm";
 import { GalleryCarousel } from "./_components/GalleryCarousel";
+import { CallButton } from "./_components/CallButton";
 
 const rubik = Rubik({ subsets: ["latin", "hebrew"], display: "swap" });
 
-const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:3000";
+const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:3001";
 
 // ── Color tokens ──────────────────────────────────────────────────────────────
 const BG = "#1e2026";
@@ -96,7 +97,12 @@ async function fetchLandingPage(profession: string, city: string): Promise<Landi
   try {
     const res = await fetch(`${BACKEND_URL}/api/pages/${profession}/${city}`, { cache: "no-store" });
     if (!res.ok) return null;
-    return res.json();
+    const data = await res.json();
+    // Backend returns firstName + lastName separately — combine into name
+    if (data?.pro && !data.pro.name) {
+      data.pro.name = `${data.pro.firstName ?? ""} ${data.pro.lastName ?? ""}`.trim();
+    }
+    return data;
   } catch { return null; }
 }
 
@@ -149,7 +155,7 @@ export default async function LandingPage({
           <span className="material-symbols-outlined" style={{ color: GOLD, fontSize: 28, fontVariationSettings: "'FILL' 1" }}>diamond</span>
           <span style={{ fontWeight: 800, fontSize: 20, letterSpacing: "-0.03em", color: GOLD }}>{data.mainTitle}</span>
         </div>
-        <a href={`tel:${phoneIntl}`} className="pulse-gold" style={{
+        <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} className="pulse-gold" style={{
           display: "flex", alignItems: "center", gap: 6,
           background: GOLD_CTR, color: ON_GOLD,
           padding: "8px 16px", borderRadius: 999,
@@ -159,7 +165,7 @@ export default async function LandingPage({
         }}>
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>call</span>
           התקשר עכשיו
-        </a>
+        </CallButton>
       </header>
 
       <main style={{ paddingTop: 72 }}>
@@ -194,7 +200,7 @@ export default async function LandingPage({
 
               <p style={{ fontSize: 18, lineHeight: 1.7, color: ON_VAR, margin: 0, maxWidth: 480 }}>{data.subTitle}</p>
 
-              <a href={`tel:${phoneIntl}`} className="pulse-gold" style={{
+              <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} className="pulse-gold" style={{
                 display: "inline-flex", alignItems: "center", gap: 14,
                 background: GOLD_CTR, color: ON_GOLD,
                 padding: "18px 36px", borderRadius: 18,
@@ -204,7 +210,7 @@ export default async function LandingPage({
               }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 24, fontVariationSettings: "'FILL' 1" }}>call</span>
                 התקשר עכשיו: {phoneDisplay}
-              </a>
+              </CallButton>
             </div>
 
             {/* Right — lead form */}
@@ -258,7 +264,7 @@ export default async function LandingPage({
                 <div style={{ flex: 1, height: 2, background: `linear-gradient(90deg, ${CYAN}, transparent)`, borderRadius: 2 }} />
               </div>
               <p style={{ fontSize: 17, lineHeight: 1.8, color: ON_VAR, margin: 0 }}>{data.description}</p>
-              <a href={`tel:${phoneIntl}`} style={{
+              <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
                 marginTop: 32, padding: "12px 28px", borderRadius: 14,
                 border: `1px solid ${GOLD}44`, background: `${GOLD}0e`,
@@ -267,7 +273,7 @@ export default async function LandingPage({
               }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}>call</span>
                 התקשר עכשיו: {phoneDisplay}
-              </a>
+              </CallButton>
             </div>
           </div>
         </section>
@@ -296,7 +302,7 @@ export default async function LandingPage({
               אל תחכו לרגע האחרון.<br />
               <span style={{ color: GOLD }}>{data.mainTitle} בידיים בטוחות.</span>
             </h2>
-            <a href={`tel:${phoneIntl}`} className="pulse-gold" style={{
+            <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} className="pulse-gold" style={{
               display: "inline-flex", alignItems: "center", gap: 16,
               background: GOLD_CTR, color: ON_GOLD,
               padding: "20px 48px", borderRadius: 20,
@@ -305,7 +311,7 @@ export default async function LandingPage({
             }}>
               <span className="material-symbols-outlined" style={{ fontSize: 26, fontVariationSettings: "'FILL' 1" }}>call</span>
               התקשר עכשיו: {phoneDisplay}
-            </a>
+            </CallButton>
             <div className="cta-icons" style={{ display: "flex", gap: 48, color: ON_VAR }}>
               {[["bolt", "פנייה מיידית"], ["security", "אחריות מלאה"], ["badge", "מורשה ומוסמך"]].map(([icon, label]) => (
                 <div key={icon} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
@@ -335,7 +341,7 @@ export default async function LandingPage({
 
       {/* ── Sticky Mobile Call Bar ─────────────────────────────────────── */}
       <div style={{ position: "fixed", bottom: 0, insetInline: 0, zIndex: 50, padding: "12px 16px 20px", background: `${SURFACE}ee`, backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", justifyContent: "center" }}>
-        <a href={`tel:${phoneIntl}`} className="pulse-gold" style={{
+        <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} className="pulse-gold" style={{
           display: "flex", alignItems: "center", gap: 12, justifyContent: "center",
           background: GOLD_CTR, color: ON_GOLD,
           width: "100%", maxWidth: 380, padding: "14px 0", borderRadius: 18,
@@ -344,7 +350,7 @@ export default async function LandingPage({
         }}>
           <span className="material-symbols-outlined" style={{ fontSize: 22, fontVariationSettings: "'FILL' 1" }}>call</span>
           התקשר עכשיו: {phoneDisplay}
-        </a>
+        </CallButton>
       </div>
 
       {/* bottom padding so sticky bar doesn't overlap content */}
