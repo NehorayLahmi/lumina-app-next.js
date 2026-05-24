@@ -38,8 +38,9 @@ export interface Call {
   duration: number;
   status: string;
   recordingUrl: string | null;
+  proId: string | null;
   createdAt: string;
-  pro: { firstName: string; lastName: string } | null;
+  pro: { firstName: string; lastName: string; phone: string; city: string; profession: string } | null;
 }
 
 export interface Lead {
@@ -49,8 +50,9 @@ export interface Lead {
   city: string;
   profession: string;
   status: string;
+  proId: string | null;
   createdAt: string;
-  pro: { firstName: string; lastName: string } | null;
+  pro: { firstName: string; lastName: string; phone: string; city: string; profession: string } | null;
 }
 
 export type Tab = "overview" | "pros" | "pages" | "traffic";

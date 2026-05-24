@@ -23,26 +23,14 @@ const GOLD_CTR = "#ffb800";
 const ON_GOLD = "#271900";
 
 
-function toInternational(raw: string): string {
-  if (!raw) return "";
-
-  // 1. מנקים את כל התווים שהם לא ספרות (רווחים, מקפים וכו')
-  const digits = raw.replace(/\D/g, "");
-
-  // 2. אם המספר כבר מתחיל ב-972, פשוט מוסיפים לו את הפלוס של טויליו
-  if (digits.startsWith("972")) {
-    return `+${digits}`;
-  }
-
-  // 3. בגלל שהמספר ב-DB הוא ישראלי ומתחיל ב-0:
-  // מורידים את ה-0 הראשונה ומצמידים +972 (תומך גם ב-9 וגם ב-10 ספרות!)
-  if (digits.startsWith("0")) {
-    return `+972${digits.slice(1)}`;
-  }
-
-  // הגנה: אם המספר הגיע בלי 0 ורק כמספר מקומי (למשל 544574700)
-  return `+972${digits}`;
-}
+// ── toInternational מושבת — משתמשים במספר הרגיל ישירות ──────────────────────
+// function toInternational(raw: string): string {
+//   if (!raw) return "";
+//   const digits = raw.replace(/\D/g, "");
+//   if (digits.startsWith("972")) return `+${digits}`;
+//   if (digits.startsWith("0")) return `+972${digits.slice(1)}`;
+//   return `+972${digits}`;
+// }
 
 
 function toDisplay(raw: string): string {
@@ -131,7 +119,7 @@ export default async function LandingPage({
   if (!data) notFound();
 
   const gallery = parseGalleryUrls(data.galleryImages);
-  const phoneIntl = toInternational(data.twilioNumber);
+  const phoneIntl = data.twilioNumber; // toInternational מושבת — מספר ישירות מה-DB
   const phoneDisplay = toDisplay(data.twilioNumber);
 
   const trustBadges = [

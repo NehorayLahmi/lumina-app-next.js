@@ -88,7 +88,7 @@ export default function AdminClient() {
         {tab === "overview" && <OverviewTab stats={stats} />}
         {tab === "pros"     && <ProsTab pros={pros} onRefresh={loadAll} />}
         {tab === "pages"    && <PagesTab pages={pages} pros={pros} />}
-        {tab === "traffic"  && <TrafficTab calls={calls} leads={leads} />}
+        {tab === "traffic"  && <TrafficTab calls={calls} leads={leads} pros={pros} />}
       </div>
     </div>
   );
