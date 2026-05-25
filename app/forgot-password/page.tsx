@@ -38,14 +38,15 @@ export default function ForgotPasswordPage() {
     >
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
         {sent ? (
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-5">
+          <div className="text-center" role="status" aria-live="polite">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-5" aria-hidden="true">
               <svg
                 className="w-8 h-8 text-green-600"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2}
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -72,13 +73,14 @@ export default function ForgotPasswordPage() {
         ) : (
           <>
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-14 h-14 bg-amber-100 rounded-full mb-4">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-amber-100 rounded-full mb-4" aria-hidden="true">
                 <svg
                   className="w-7 h-7 text-amber-600"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -93,24 +95,30 @@ export default function ForgotPasswordPage() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="forgot-email" className="block text-sm font-medium text-gray-700 mb-1">
                   דואר אלקטרוני
                 </label>
                 <input
+                  id="forgot-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={submitting}
+                  autoComplete="email"
                   className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:bg-gray-50"
                   placeholder="name@example.com"
                 />
               </div>
 
               {error && (
-                <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">
+                <div
+                  role="alert"
+                  aria-live="assertive"
+                  className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-4 py-2.5"
+                >
                   {error}
                 </div>
               )}
@@ -118,6 +126,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={submitting}
+                aria-label={submitting ? "שולח קישור, אנא המתן" : "שלח קישור לאיפוס סיסמה"}
                 className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg transition-colors"
               >
                 {submitting ? "שולח..." : "שלח קישור לאיפוס"}

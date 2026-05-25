@@ -16,7 +16,7 @@ export function LeadForm({ profession, city, proName }: Props) {
   const [state, setState]   = useState<FormState>("idle");
   const [errMsg, setErrMsg] = useState("");
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!name.trim() || !phone.trim()) return;
     setState("loading");
@@ -86,7 +86,7 @@ export function LeadForm({ profession, city, proName }: Props) {
             autoComplete="name"
             placeholder="ישראל ישראלי"
             style={inputStyle}
-            onFocus={e => { e.currentTarget.style.borderColor = "rgba(0,242,255,0.5)"; e.currentTarget.style.boxShadow = "0 0 0 2px rgba(0,242,255,0.1)"; }}
+            onFocus={e => { e.currentTarget.style.borderColor = "rgba(0,242,255,0.7)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,242,255,0.25)"; e.currentTarget.style.outline = "none"; }}
             onBlur={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }}
           />
         </div>
@@ -107,7 +107,7 @@ export function LeadForm({ profession, city, proName }: Props) {
             placeholder="05X-XXX-XXXX"
             dir="ltr"
             style={{ ...inputStyle, textAlign: "left" }}
-            onFocus={e => { e.currentTarget.style.borderColor = "rgba(0,242,255,0.5)"; e.currentTarget.style.boxShadow = "0 0 0 2px rgba(0,242,255,0.1)"; }}
+            onFocus={e => { e.currentTarget.style.borderColor = "rgba(0,242,255,0.7)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,242,255,0.25)"; e.currentTarget.style.outline = "none"; }}
             onBlur={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }}
           />
         </div>

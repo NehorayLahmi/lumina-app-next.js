@@ -20,13 +20,13 @@ const C = {
 
 // ── Reusable field wrapper ────────────────────────────────────────────────────
 function Field({
-  label, icon, children, colSpan2 = false,
+  label, icon, children, colSpan2 = false, fieldId,
 }: {
-  label: string; icon: string; children: React.ReactNode; colSpan2?: boolean;
+  label: string; icon: string; children: React.ReactNode; colSpan2?: boolean; fieldId?: string;
 }) {
   return (
     <div className={`flex flex-col${colSpan2 ? " md:col-span-2" : ""}`} style={{ gap: 8 }}>
-      <label style={{
+      <label htmlFor={fieldId} style={{
         fontFamily: "var(--font-outfit), 'Outfit', sans-serif",
         fontSize: 14, fontWeight: 600, letterSpacing: "0.05em",
         color: C.primary, paddingRight: 8,
@@ -86,7 +86,7 @@ export default function RegisterPage() {
     return () => document.removeEventListener("mousemove", onMove);
   }, []);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
 
@@ -185,8 +185,9 @@ export default function RegisterPage() {
             <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: 16, marginBottom: 16 }}>
 
               {/* שם פרטי */}
-              <Field label="שם פרטי" icon="person">
+              <Field label="שם פרטי" icon="person" fieldId="reg-first-name">
                 <input
+                  id="reg-first-name"
                   className="lumina-input"
                   type="text"
                   value={firstName}
@@ -200,8 +201,9 @@ export default function RegisterPage() {
               </Field>
 
               {/* שם משפחה */}
-              <Field label="שם משפחה" icon="badge">
+              <Field label="שם משפחה" icon="badge" fieldId="reg-last-name">
                 <input
+                  id="reg-last-name"
                   className="lumina-input"
                   type="text"
                   value={lastName}
@@ -215,8 +217,9 @@ export default function RegisterPage() {
               </Field>
 
               {/* אימייל */}
-              <Field label="אימייל" icon="mail">
+              <Field label="אימייל" icon="mail" fieldId="reg-email">
                 <input
+                  id="reg-email"
                   className="lumina-input"
                   type="email"
                   value={email}
@@ -230,8 +233,9 @@ export default function RegisterPage() {
               </Field>
 
               {/* טלפון */}
-              <Field label="טלפון" icon="call">
+              <Field label="טלפון" icon="call" fieldId="reg-phone">
                 <input
+                  id="reg-phone"
                   className="lumina-input"
                   type="tel"
                   value={phone}
@@ -245,8 +249,9 @@ export default function RegisterPage() {
               </Field>
 
               {/* מקצוע */}
-              <Field label="מקצוע" icon="category" colSpan2>
+              <Field label="מקצוע" icon="category" colSpan2 fieldId="reg-profession">
                 <select
+                  id="reg-profession"
                   className="lumina-select"
                   value={profession}
                   onChange={(e) => setProfession(e.target.value)}
@@ -271,8 +276,9 @@ export default function RegisterPage() {
               </Field>
 
               {/* עיר פעילות */}
-              <Field label="עיר פעילות" icon="location_on" colSpan2>
+              <Field label="עיר פעילות" icon="location_on" colSpan2 fieldId="reg-city">
                 <select
+                  id="reg-city"
                   className="lumina-select"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
@@ -297,8 +303,9 @@ export default function RegisterPage() {
               </Field>
 
               {/* סיסמה */}
-              <Field label="סיסמה (לפחות 6 תווים)" icon="lock" colSpan2>
+              <Field label="סיסמה (לפחות 6 תווים)" icon="lock" colSpan2 fieldId="reg-password">
                 <input
+                  id="reg-password"
                   className="lumina-input"
                   type={showPass ? "text" : "password"}
                   value={password}
@@ -313,22 +320,26 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPass((v) => !v)}
+                  aria-label={showPass ? "הסתר סיסמה" : "הצג סיסמה"}
+                  aria-pressed={showPass}
+                  aria-controls="reg-password"
                   style={{
                     position: "absolute", left: 16, top: "50%",
                     transform: "translateY(-50%)",
                     background: "none", border: "none",
-                    cursor: "pointer", color: C.outline, padding: 0,
+                    cursor: "pointer", color: C.outline, padding: 4,
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 22 }} aria-hidden="true">
                     {showPass ? "visibility_off" : "visibility"}
                   </span>
                 </button>
               </Field>
 
               {/* אימות סיסמה */}
-              <Field label="אימות סיסמה" icon="lock_reset" colSpan2>
+              <Field label="אימות סיסמה" icon="lock_reset" colSpan2 fieldId="reg-confirm">
                 <input
+                  id="reg-confirm"
                   className="lumina-input"
                   type={showConf ? "text" : "password"}
                   value={confirm}
@@ -342,14 +353,17 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowConf((v) => !v)}
+                  aria-label={showConf ? "הסתר אימות סיסמה" : "הצג אימות סיסמה"}
+                  aria-pressed={showConf}
+                  aria-controls="reg-confirm"
                   style={{
                     position: "absolute", left: 16, top: "50%",
                     transform: "translateY(-50%)",
                     background: "none", border: "none",
-                    cursor: "pointer", color: C.outline, padding: 0,
+                    cursor: "pointer", color: C.outline, padding: 4,
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 22 }} aria-hidden="true">
                     {showConf ? "visibility_off" : "visibility"}
                   </span>
                 </button>
@@ -383,12 +397,16 @@ export default function RegisterPage() {
 
             {/* שגיאה */}
             {error && (
-              <div style={{
-                background: "rgba(255,180,171,0.1)",
-                border: "1px solid rgba(255,180,171,0.3)",
-                borderRadius: 12, padding: "10px 14px",
-                color: "#ffb4ab", fontSize: 14, marginBottom: 16,
-              }}>
+              <div
+                role="alert"
+                aria-live="assertive"
+                style={{
+                  background: "rgba(255,180,171,0.1)",
+                  border: "1px solid rgba(255,180,171,0.3)",
+                  borderRadius: 12, padding: "10px 14px",
+                  color: "#ffb4ab", fontSize: 14, marginBottom: 16,
+                }}
+              >
                 {error}
               </div>
             )}

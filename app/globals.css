@@ -70,6 +70,11 @@ body {
   border-color: rgba(215, 186, 255, 0.5);
   box-shadow: 0 0 0 2px rgba(215, 186, 255, 0.15);
 }
+.lumina-input:focus-visible {
+  border-color: rgba(215, 186, 255, 0.9);
+  box-shadow: 0 0 0 3px rgba(215, 186, 255, 0.45);
+  outline: none;
+}
 .lumina-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .lumina-select {
@@ -94,6 +99,11 @@ body {
 .lumina-select:focus {
   border-color: rgba(215, 186, 255, 0.5);
   box-shadow: 0 0 0 2px rgba(215, 186, 255, 0.15);
+}
+.lumina-select:focus-visible {
+  border-color: rgba(215, 186, 255, 0.9);
+  box-shadow: 0 0 0 3px rgba(215, 186, 255, 0.45);
+  outline: none;
 }
 .lumina-select:disabled { opacity: 0.5; cursor: not-allowed; }
 

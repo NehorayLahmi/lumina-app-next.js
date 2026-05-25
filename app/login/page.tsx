@@ -105,7 +105,7 @@ function LoginForm() {
       dir="rtl"
     >
       {/* ── Animated background orbs ──────────────────────────────────── */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div style={{
           position: "absolute", borderRadius: "50%", filter: "blur(80px)",
           opacity: 0.4, width: 500, height: 500,
@@ -129,6 +129,7 @@ function LoginForm() {
       <div
         ref={glowRef}
         className="fixed pointer-events-none"
+        aria-hidden="true"
         style={{
           width: 400, height: 400,
           background: "rgba(215,186,255,0.08)",
@@ -147,13 +148,10 @@ function LoginForm() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-12">
           <div className="w-20 h-20 mb-6 flex items-center justify-center rounded-2xl shadow-2xl lumina-gradient"
-               style={{ flexShrink: 0 }}>
+               style={{ flexShrink: 0 }} aria-hidden="true">
             <span
               className="material-symbols-outlined"
-              style={{
-                color: C.onPrimary, fontSize: 48,
-                fontVariationSettings: "'FILL' 1",
-              }}
+              style={{ color: C.onPrimary, fontSize: 48, fontVariationSettings: "'FILL' 1" }}
             >
               diamond
             </span>
@@ -183,8 +181,9 @@ function LoginForm() {
           ref={cardRef}
           className="lumina-glass rounded-[32px] p-8 md:p-10"
           style={{ transition: "transform 0.1s ease-out" }}
+          aria-label="טופס התחברות"
         >
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
 
             {/* Welcome */}
             <div className="text-right mb-6">
@@ -201,27 +200,31 @@ function LoginForm() {
 
             {/* Email */}
             <div>
-              <label style={{
-                display: "block", fontFamily: "var(--font-outfit), 'Outfit', sans-serif",
-                fontSize: 14, fontWeight: 600, letterSpacing: "0.05em",
-                color: C.onSurfaceVar, marginBottom: 8, marginRight: 4,
-              }}>
+              <label
+                htmlFor="login-email"
+                style={{
+                  display: "block", fontFamily: "var(--font-outfit), 'Outfit', sans-serif",
+                  fontSize: 14, fontWeight: 600, letterSpacing: "0.05em",
+                  color: C.onSurfaceVar, marginBottom: 8, marginRight: 4,
+                }}
+              >
                 כתובת אימייל
               </label>
               <div className="relative group">
                 <span
                   className="material-symbols-outlined"
+                  aria-hidden="true"
                   style={{
                     position: "absolute", right: 16, top: "50%",
                     transform: "translateY(-50%)",
                     color: C.onSurfaceVar, fontSize: 22,
-                    pointerEvents: "none",
-                    transition: "color 0.2s",
+                    pointerEvents: "none", transition: "color 0.2s",
                   }}
                 >
                   mail
                 </span>
                 <input
+                  id="login-email"
                   className="lumina-input"
                   type="email"
                   value={email}
@@ -238,11 +241,14 @@ function LoginForm() {
             {/* Password */}
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <label style={{
-                  fontFamily: "var(--font-outfit), 'Outfit', sans-serif",
-                  fontSize: 14, fontWeight: 600, letterSpacing: "0.05em",
-                  color: C.onSurfaceVar,
-                }}>
+                <label
+                  htmlFor="login-password"
+                  style={{
+                    fontFamily: "var(--font-outfit), 'Outfit', sans-serif",
+                    fontSize: 14, fontWeight: 600, letterSpacing: "0.05em",
+                    color: C.onSurfaceVar,
+                  }}
+                >
                   סיסמה
                 </label>
                 <Link
@@ -255,6 +261,7 @@ function LoginForm() {
               <div className="relative group">
                 <span
                   className="material-symbols-outlined"
+                  aria-hidden="true"
                   style={{
                     position: "absolute", right: 16, top: "50%",
                     transform: "translateY(-50%)",
@@ -265,6 +272,7 @@ function LoginForm() {
                   lock
                 </span>
                 <input
+                  id="login-password"
                   className="lumina-input"
                   type={showPass ? "text" : "password"}
                   value={password}
@@ -278,14 +286,16 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPass((v) => !v)}
+                  aria-label={showPass ? "הסתר סיסמה" : "הצג סיסמה"}
+                  aria-pressed={showPass}
                   style={{
                     position: "absolute", left: 16, top: "50%",
                     transform: "translateY(-50%)",
                     background: "none", border: "none", cursor: "pointer",
-                    color: C.onSurfaceVar, padding: 0,
+                    color: C.onSurfaceVar, padding: 4,
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 22 }} aria-hidden="true">
                     {showPass ? "visibility_off" : "visibility"}
                   </span>
                 </button>
@@ -294,20 +304,28 @@ function LoginForm() {
 
             {/* Success / error banners */}
             {registered && (
-              <div style={{
-                background: "rgba(91,213,252,0.12)", border: "1px solid rgba(91,213,252,0.3)",
-                borderRadius: 12, padding: "10px 14px",
-                color: C.tertiary, fontSize: 14,
-              }}>
+              <div
+                role="status"
+                aria-live="polite"
+                style={{
+                  background: "rgba(91,213,252,0.12)", border: "1px solid rgba(91,213,252,0.3)",
+                  borderRadius: 12, padding: "10px 14px",
+                  color: C.tertiary, fontSize: 14,
+                }}
+              >
                 ההרשמה הושלמה בהצלחה — כעת ניתן להתחבר
               </div>
             )}
             {error && (
-              <div style={{
-                background: "rgba(255,180,171,0.1)", border: "1px solid rgba(255,180,171,0.3)",
-                borderRadius: 12, padding: "10px 14px",
-                color: "#ffb4ab", fontSize: 14,
-              }}>
+              <div
+                role="alert"
+                aria-live="assertive"
+                style={{
+                  background: "rgba(255,180,171,0.1)", border: "1px solid rgba(255,180,171,0.3)",
+                  borderRadius: 12, padding: "10px 14px",
+                  color: "#ffb4ab", fontSize: 14,
+                }}
+              >
                 {error}
               </div>
             )}
@@ -316,6 +334,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={submitting}
+              aria-label={submitting ? "מתחבר, אנא המתן" : "התחברות למערכת"}
               className="lumina-gradient"
               style={{
                 width: "100%", height: 64,
@@ -334,7 +353,7 @@ function LoginForm() {
             >
               <span>{submitting ? "מתחבר..." : "התחברות"}</span>
               {!submitting && (
-                <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 22 }} aria-hidden="true">
                   arrow_back
                 </span>
               )}
@@ -367,9 +386,9 @@ function LoginForm() {
             © 2025 LUMINA LEAD TECHNOLOGY
           </p>
           <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 8 }}>
-            <a href="#" style={{ color: C.onSurface, fontSize: 14, textDecoration: "none" }}>תנאי שימוש</a>
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>•</span>
-            <a href="#" style={{ color: C.onSurface, fontSize: 14, textDecoration: "none" }}>פרטיות</a>
+            <Link href="/terms" style={{ color: C.onSurface, fontSize: 14, textDecoration: "none" }}>תנאי שימוש</Link>
+            <span style={{ color: "rgba(255,255,255,0.2)" }} aria-hidden="true">•</span>
+            <Link href="/privacy" style={{ color: C.onSurface, fontSize: 14, textDecoration: "none" }}>פרטיות</Link>
           </div>
         </footer>
       </main>
