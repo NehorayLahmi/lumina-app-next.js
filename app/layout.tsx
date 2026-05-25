@@ -40,7 +40,7 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
         />
-        <meta name="google-site-verification" content="cb0d80c5f7d02e7a" />
+        <meta name="google-site-verification" content="evxt-_V13_uMX57EhuJlWKX1X7JukqDYNt-ndlnKXTQ" />
       </head>
       <body className="min-h-full flex flex-col text-gray-900">
         <AuthProvider>{children}</AuthProvider>
