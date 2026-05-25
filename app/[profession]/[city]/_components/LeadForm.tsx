@@ -41,9 +41,14 @@ export function LeadForm({ profession, city, proName }: Props) {
 
   if (state === "success") {
     return (
-      <div className="cyber-glass cyber-glow" style={{ borderRadius: 28, padding: "48px 32px", textAlign: "center" }}>
+      <div
+        role="status"
+        aria-live="polite"
+        className="cyber-glass cyber-glow"
+        style={{ borderRadius: 28, padding: "48px 32px", textAlign: "center" }}
+      >
         <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(0,242,255,0.15)", border: "1px solid rgba(0,242,255,0.4)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 30, color: "#00f2ff", fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 30, color: "#00f2ff", fontVariationSettings: "'FILL' 1" }} aria-hidden="true">check_circle</span>
         </div>
         <h3 style={{ fontSize: 22, fontWeight: 700, color: "#e2e2e7", marginBottom: 8 }}>הפרטים נשלחו בהצלחה!</h3>
         <p style={{ fontSize: 14, color: "#b4b5b5" }}>{proName} יחזור אליך בהקדם.</p>
@@ -64,35 +69,68 @@ export function LeadForm({ profession, city, proName }: Props) {
   return (
     <div className="cyber-glass cyber-glow" style={{ borderRadius: 28, padding: "32px 28px" }}>
       <h3 style={{ fontSize: 22, fontWeight: 700, color: "#ffdca1", marginBottom: 24 }}>השאירו פרטים ונחזור אליכם</h3>
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }} noValidate>
         <div>
-          <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "#b4b5b5", marginBottom: 6, letterSpacing: "0.04em" }}>שם מלא</label>
+          <label
+            htmlFor="lead-full-name"
+            style={{ display: "block", fontSize: 12, fontWeight: 500, color: "#b4b5b5", marginBottom: 6, letterSpacing: "0.04em" }}
+          >
+            שם מלא
+          </label>
           <input
-            type="text" value={name} onChange={e => setName(e.target.value)}
-            required style={inputStyle}
+            id="lead-full-name"
+            type="text"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            required
+            autoComplete="name"
+            placeholder="ישראל ישראלי"
+            style={inputStyle}
             onFocus={e => { e.currentTarget.style.borderColor = "rgba(0,242,255,0.5)"; e.currentTarget.style.boxShadow = "0 0 0 2px rgba(0,242,255,0.1)"; }}
             onBlur={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }}
           />
         </div>
         <div>
-          <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "#b4b5b5", marginBottom: 6, letterSpacing: "0.04em" }}>מספר טלפון</label>
+          <label
+            htmlFor="lead-phone"
+            style={{ display: "block", fontSize: 12, fontWeight: 500, color: "#b4b5b5", marginBottom: 6, letterSpacing: "0.04em" }}
+          >
+            מספר טלפון
+          </label>
           <input
-            type="tel" value={phone} onChange={e => setPhone(e.target.value)}
-            required dir="ltr" style={{ ...inputStyle, textAlign: "left" }}
+            id="lead-phone"
+            type="tel"
+            value={phone}
+            onChange={e => setPhone(e.target.value)}
+            required
+            autoComplete="tel"
+            placeholder="05X-XXX-XXXX"
+            dir="ltr"
+            style={{ ...inputStyle, textAlign: "left" }}
             onFocus={e => { e.currentTarget.style.borderColor = "rgba(0,242,255,0.5)"; e.currentTarget.style.boxShadow = "0 0 0 2px rgba(0,242,255,0.1)"; }}
             onBlur={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }}
           />
         </div>
         {state === "error" && (
-          <p style={{ fontSize: 13, color: "#ffb4ab", background: "rgba(255,180,171,0.1)", borderRadius: 10, padding: "8px 12px", textAlign: "center" }}>{errMsg}</p>
+          <p
+            role="alert"
+            aria-live="assertive"
+            style={{ fontSize: 13, color: "#ffb4ab", background: "rgba(255,180,171,0.1)", borderRadius: 10, padding: "8px 12px", textAlign: "center" }}
+          >
+            {errMsg}
+          </p>
         )}
-        <button type="submit" disabled={state === "loading"} style={{
-          width: "100%", padding: "16px 0", borderRadius: 14, border: "none", cursor: state === "loading" ? "not-allowed" : "pointer",
-          background: "linear-gradient(135deg, #ffb800, #ff9500)", color: "#271900",
-          fontSize: 17, fontWeight: 700, fontFamily: "inherit",
-          opacity: state === "loading" ? 0.65 : 1, transition: "opacity 0.2s, transform 0.15s",
-          boxShadow: "0 4px 20px rgba(255,184,0,0.3)",
-        }}
+        <button
+          type="submit"
+          disabled={state === "loading"}
+          aria-label={state === "loading" ? "שולח טופס, אנא המתן" : "שלח פרטים לקבלת שיחה חוזרת"}
+          style={{
+            width: "100%", padding: "16px 0", borderRadius: 14, border: "none", cursor: state === "loading" ? "not-allowed" : "pointer",
+            background: "linear-gradient(135deg, #ffb800, #ff9500)", color: "#271900",
+            fontSize: 17, fontWeight: 700, fontFamily: "inherit",
+            opacity: state === "loading" ? 0.65 : 1, transition: "opacity 0.2s, transform 0.15s",
+            boxShadow: "0 4px 20px rgba(255,184,0,0.3)",
+          }}
           onMouseEnter={e => { if (state !== "loading") e.currentTarget.style.transform = "scale(1.02)"; }}
           onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; }}
         >

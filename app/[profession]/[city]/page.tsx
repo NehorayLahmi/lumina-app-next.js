@@ -131,6 +131,9 @@ export default async function LandingPage({
   return (
     <div className={rubik.className} style={{ background: BG, color: ON_SURF, minHeight: "100vh", direction: "rtl", overflowX: "hidden" }}>
 
+      {/* ── Skip Navigation ───────────────────────────────────────────── */}
+      <a href="#main-content" className="skip-link">דלג לתוכן הראשי</a>
+
       {/* ── Fixed Header ──────────────────────────────────────────────── */}
       <header style={{
         position: "fixed", top: 0, width: "100%", zIndex: 50, height: 72,
@@ -139,24 +142,26 @@ export default async function LandingPage({
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "0 24px",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span className="material-symbols-outlined" style={{ color: GOLD, fontSize: 28, fontVariationSettings: "'FILL' 1" }}>diamond</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }} aria-label={data.mainTitle}>
+          <span className="material-symbols-outlined" style={{ color: GOLD, fontSize: 28, fontVariationSettings: "'FILL' 1" }} aria-hidden="true">diamond</span>
           <span style={{ fontWeight: 800, fontSize: 20, letterSpacing: "-0.03em", color: GOLD }}>{data.mainTitle}</span>
         </div>
-        <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} className="pulse-gold" style={{
-          display: "flex", alignItems: "center", gap: 6,
-          background: GOLD_CTR, color: ON_GOLD,
-          padding: "8px 16px", borderRadius: 999,
-          fontWeight: 700, fontSize: 13, textDecoration: "none",
-          boxShadow: "0 4px 16px rgba(255,184,0,0.3)",
-          transition: "filter 0.2s", whiteSpace: "nowrap",
-        }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>call</span>
-          התקשר עכשיו
-        </CallButton>
+        <nav aria-label="ניווט ראשי">
+          <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} ariaLabel={`התקשר עכשיו: ${phoneDisplay}`} className="pulse-gold" style={{
+            display: "flex", alignItems: "center", gap: 6,
+            background: GOLD_CTR, color: ON_GOLD,
+            padding: "8px 16px", borderRadius: 999,
+            fontWeight: 700, fontSize: 13, textDecoration: "none",
+            boxShadow: "0 4px 16px rgba(255,184,0,0.3)",
+            transition: "filter 0.2s", whiteSpace: "nowrap",
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">call</span>
+            התקשר עכשיו
+          </CallButton>
+        </nav>
       </header>
 
-      <main style={{ paddingTop: 72 }}>
+      <main id="main-content" style={{ paddingTop: 72 }}>
 
         {/* ── Hero ──────────────────────────────────────────────────────── */}
         <section style={{ position: "relative", minHeight: "90vh", display: "flex", alignItems: "center", overflow: "hidden" }}>
@@ -188,7 +193,7 @@ export default async function LandingPage({
 
               <p style={{ fontSize: 18, lineHeight: 1.7, color: ON_VAR, margin: 0, maxWidth: 480 }}>{data.subTitle}</p>
 
-              <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} className="pulse-gold" style={{
+              <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} ariaLabel={`התקשר עכשיו: ${phoneDisplay}`} className="pulse-gold" style={{
                 display: "inline-flex", alignItems: "center", gap: 14,
                 background: GOLD_CTR, color: ON_GOLD,
                 padding: "18px 36px", borderRadius: 18,
@@ -196,7 +201,7 @@ export default async function LandingPage({
                 width: "fit-content", boxShadow: `0 8px 32px ${GOLD_CTR}55`,
                 transition: "filter 0.2s",
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 24, fontVariationSettings: "'FILL' 1" }}>call</span>
+                <span className="material-symbols-outlined" style={{ fontSize: 24, fontVariationSettings: "'FILL' 1" }} aria-hidden="true">call</span>
                 התקשר עכשיו: {phoneDisplay}
               </CallButton>
             </div>
@@ -218,11 +223,11 @@ export default async function LandingPage({
         </section>
 
         {/* ── Trust Badges ──────────────────────────────────────────────── */}
-        <div style={{ background: SURF_LOW, borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "40px 24px" }}>
+        <section aria-label="יתרונות השירות" style={{ background: SURF_LOW, borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "40px 24px" }}>
           <div className="trust-grid" style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
             {trustBadges.map(badge => (
               <div key={badge.icon} style={{ display: "flex", alignItems: "center", gap: 16, justifyContent: "center" }}>
-                <div className="cyber-glass cyber-glow" style={{ width: 48, height: 48, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <div className="cyber-glass cyber-glow" style={{ width: 48, height: 48, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }} aria-hidden="true">
                   <span className="material-symbols-outlined" style={{ color: CYAN, fontSize: 22 }}>{badge.icon}</span>
                 </div>
                 <div>
@@ -232,7 +237,7 @@ export default async function LandingPage({
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
         {/* ── About / Description ───────────────────────────────────────── */}
         <section style={{ maxWidth: 900, margin: "0 auto", padding: "96px 24px" }}>
@@ -252,14 +257,14 @@ export default async function LandingPage({
                 <div style={{ flex: 1, height: 2, background: `linear-gradient(90deg, ${CYAN}, transparent)`, borderRadius: 2 }} />
               </div>
               <p style={{ fontSize: 17, lineHeight: 1.8, color: ON_VAR, margin: 0 }}>{data.description}</p>
-              <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} style={{
+              <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} ariaLabel={`התקשר עכשיו: ${phoneDisplay}`} style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
                 marginTop: 32, padding: "12px 28px", borderRadius: 14,
                 border: `1px solid ${GOLD}44`, background: `${GOLD}0e`,
                 color: GOLD, fontWeight: 700, fontSize: 15, textDecoration: "none",
                 transition: "background 0.2s",
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}>call</span>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }} aria-hidden="true">call</span>
                 התקשר עכשיו: {phoneDisplay}
               </CallButton>
             </div>
@@ -290,24 +295,24 @@ export default async function LandingPage({
               אל תחכו לרגע האחרון.<br />
               <span style={{ color: GOLD }}>{data.mainTitle} בידיים בטוחות.</span>
             </h2>
-            <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} className="pulse-gold" style={{
+            <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} ariaLabel={`התקשר עכשיו: ${phoneDisplay}`} className="pulse-gold" style={{
               display: "inline-flex", alignItems: "center", gap: 16,
               background: GOLD_CTR, color: ON_GOLD,
               padding: "20px 48px", borderRadius: 20,
               fontWeight: 800, fontSize: 22, textDecoration: "none",
               boxShadow: `0 8px 40px ${GOLD_CTR}55`,
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 26, fontVariationSettings: "'FILL' 1" }}>call</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 26, fontVariationSettings: "'FILL' 1" }} aria-hidden="true">call</span>
               התקשר עכשיו: {phoneDisplay}
             </CallButton>
-            <div className="cta-icons" style={{ display: "flex", gap: 48, color: ON_VAR }}>
+            <ul className="cta-icons" style={{ display: "flex", gap: 48, color: ON_VAR, listStyle: "none", padding: 0, margin: 0 }}>
               {[["bolt", "פנייה מיידית"], ["security", "אחריות מלאה"], ["badge", "מורשה ומוסמך"]].map(([icon, label]) => (
-                <div key={icon} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                  <span className="material-symbols-outlined" style={{ color: CYAN, fontSize: 24 }}>{icon}</span>
+                <li key={icon} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                  <span className="material-symbols-outlined" style={{ color: CYAN, fontSize: 24 }} aria-hidden="true">{icon}</span>
                   <span style={{ fontSize: 13, fontWeight: 500 }}>{label}</span>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </section>
 
@@ -315,28 +320,31 @@ export default async function LandingPage({
         <footer style={{ background: "#15171c", borderTop: "1px solid rgba(255,255,255,0.05)", padding: "48px 24px" }}>
           <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 20, textAlign: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span className="material-symbols-outlined" style={{ color: GOLD, fontVariationSettings: "'FILL' 1", fontSize: 22 }}>diamond</span>
+              <span className="material-symbols-outlined" style={{ color: GOLD, fontVariationSettings: "'FILL' 1", fontSize: 22 }} aria-hidden="true">diamond</span>
               <span style={{ fontWeight: 800, fontSize: 18, color: GOLD }}>{data.mainTitle}</span>
             </div>
             <p style={{ fontSize: 14, color: ON_VAR, maxWidth: 420, lineHeight: 1.6 }}>
               {data.subTitle}
             </p>
-            <p style={{ fontSize: 12, color: "#514532", marginTop: 8 }}>© {new Date().getFullYear()} · {data.mainTitle} · {data.pro.city}</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 8 }}>
+              <p style={{ fontSize: 12, color: "#514532", margin: 0 }}>© {new Date().getFullYear()} · {data.mainTitle} · {data.pro.city}</p>
+              <a href="/privacy" style={{ fontSize: 12, color: "#514532", textDecoration: "underline", textUnderlineOffset: 3 }}>מדיניות פרטיות</a>
+            </div>
           </div>
         </footer>
 
       </main>
 
       {/* ── Sticky Mobile Call Bar ─────────────────────────────────────── */}
-      <div style={{ position: "fixed", bottom: 0, insetInline: 0, zIndex: 50, padding: "12px 16px 20px", background: `${SURFACE}ee`, backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", justifyContent: "center" }}>
-        <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} className="pulse-gold" style={{
+      <div role="region" aria-label="חיוג מהיר" style={{ position: "fixed", bottom: 0, insetInline: 0, zIndex: 50, padding: "12px 16px 20px", background: `${SURFACE}ee`, backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", justifyContent: "center" }}>
+        <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} ariaLabel={`התקשר עכשיו: ${phoneDisplay}`} className="pulse-gold" style={{
           display: "flex", alignItems: "center", gap: 12, justifyContent: "center",
           background: GOLD_CTR, color: ON_GOLD,
           width: "100%", maxWidth: 380, padding: "14px 0", borderRadius: 18,
           fontWeight: 800, fontSize: 18, textDecoration: "none",
           boxShadow: `0 4px 24px ${GOLD_CTR}55`,
         }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 22, fontVariationSettings: "'FILL' 1" }}>call</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 22, fontVariationSettings: "'FILL' 1" }} aria-hidden="true">call</span>
           התקשר עכשיו: {phoneDisplay}
         </CallButton>
       </div>
