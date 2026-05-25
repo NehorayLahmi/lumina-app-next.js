@@ -16,6 +16,7 @@ export interface Pro {
   pricePerLead: number;
   isActive: boolean;
   adminLocked: boolean;
+  telegramChatId: string | null;
   createdAt: string;
   user: { email: string };
   _count: { leads: number; calls: number; landingPages: number };

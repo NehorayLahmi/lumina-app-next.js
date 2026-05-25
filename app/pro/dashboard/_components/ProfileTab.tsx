@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { CITIES, PROFESSIONS } from "@/lib/options";
 import { C } from "./constants";
 import { labelOf } from "./helpers";
+import { TelegramLoginButton, type TelegramUser } from "./TelegramLoginButton";
 import type { ProData } from "./types";
 
 interface Props {
@@ -14,6 +16,25 @@ interface Props {
 }
 
 export function ProfileTab({ pro, email, toggling, onToggle, onLogout }: Props) {
+  const [telegramId, setTelegramId] = useState<string | null | undefined>(pro.telegramChatId);
+  const [linking, setLinking]       = useState(false);
+  const [linkError, setLinkError]   = useState("");
+
+  const handleTelegramAuth = useCallback(async (user: TelegramUser) => {
+    setLinking(true); setLinkError("");
+    try {
+      const res = await fetch("/api/pro/connect-telegram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user),
+      });
+      const data = await res.json();
+      if (res.ok) { setTelegramId(data.telegramChatId); }
+      else        { setLinkError(data.message ?? "שגיאה בחיבור"); }
+    } catch { setLinkError("שגיאת חיבור"); }
+    setLinking(false);
+  }, []);
+
   const fields = [
     { icon: "person",      label: "שם מלא",    value: `${pro.firstName} ${pro.lastName}` },
     { icon: "mail",        label: "אימייל",     value: email },
@@ -71,6 +92,31 @@ export function ProfileTab({ pro, email, toggling, onToggle, onLogout }: Props) 
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Telegram connect */}
+      <div className="pro-glass" style={{ borderRadius: 20, padding: "16px 18px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: telegramId ? 0 : 12 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 20, color: telegramId ? C.tertiary : C.onSurfVar, fontVariationSettings: "'FILL' 1" }}>send</span>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 600, color: C.onSurface, margin: 0 }}>טלגרם</p>
+            <p style={{ fontSize: 11, color: telegramId ? C.tertiary : C.onSurfVar, margin: 0 }}>
+              {telegramId ? `מחובר · ID: ${telegramId}` : "לא מחובר — לא תקבל התראות"}
+            </p>
+          </div>
+          {telegramId && (
+            <span className="material-symbols-outlined" style={{ fontSize: 18, color: C.tertiary, marginRight: "auto", fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+          )}
+        </div>
+        {!telegramId && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {linking
+              ? <p style={{ fontSize: 12, color: C.onSurfVar }}>מחבר...</p>
+              : <TelegramLoginButton onAuth={handleTelegramAuth} />
+            }
+            {linkError && <p style={{ fontSize: 12, color: "#ffb4ab", margin: 0 }}>{linkError}</p>}
+          </div>
+        )}
       </div>
 
       {/* Logout */}

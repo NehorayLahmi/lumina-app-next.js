@@ -12,6 +12,7 @@ export function EditProModal({ pro, onClose, onSaved }: {
   const [form, setForm] = useState({
     firstName: pro.firstName, lastName: pro.lastName, phone: pro.phone,
     city: pro.city, profession: pro.profession, pricePerLead: pro.pricePerLead,
+    telegramChatId: pro.telegramChatId ?? "",
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -51,6 +52,9 @@ export function EditProModal({ pro, onClose, onSaved }: {
         </div>
         <ModalField label="מחיר לליד (₪)">
           <input style={adminInput} type="number" min="0" value={form.pricePerLead} onChange={f("pricePerLead")} />
+        </ModalField>
+        <ModalField label="Telegram Chat ID">
+          <input style={adminInput} value={form.telegramChatId} onChange={f("telegramChatId")} placeholder="ריק = שלח לברירת מחדל" />
         </ModalField>
         {error && <p style={{ color: C.error, fontSize: 13, marginBottom: 8 }}>{error}</p>}
         <div style={{ display: "flex", gap: 10, marginTop: 4 }}>

@@ -28,6 +28,7 @@ export interface ProData {
   pricePerLead: number;
   isActive: boolean;
   adminLocked: boolean;
+  telegramChatId?: string | null;
   user: { email: string };
   leads: Lead[];
   calls: Call[];
