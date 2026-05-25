@@ -390,7 +390,7 @@ export default function AdminProEditPage({ proId }: { proId: string }) {
         <span className="material-symbols-outlined" style={{ fontSize: 56, color: C.outlineVar }}>web_asset_off</span>
         <p style={{ color: C.onSurface, fontSize: 17, fontWeight: 700, margin: 0 }}>אין דפי נחיתה לנציג זה</p>
         {pro && <p style={{ color: `${C.onSurface}88`, fontSize: 14, margin: 0 }}>{pro.firstName} {pro.lastName}</p>}
-        <button onClick={() => router.push("/admin")} style={{ marginTop: 8, padding: "10px 24px", borderRadius: 12, border: `1px solid ${C.outlineVar}`, background: "transparent", color: C.primary, fontSize: 14, cursor: "pointer" }}>
+        <button onClick={() => router.push(`/admin/pros/${proId}/dashboard`)} style={{ marginTop: 8, padding: "10px 24px", borderRadius: 12, border: `1px solid ${C.outlineVar}`, background: "transparent", color: C.primary, fontSize: 14, cursor: "pointer" }}>
           חזרה לדשבורד
         </button>
       </div>
@@ -414,7 +414,7 @@ export default function AdminProEditPage({ proId }: { proId: string }) {
         <div style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(30,32,40,0.92)", backdropFilter: "blur(20px)", borderBottom: `1px solid ${C.outlineVar}55`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px" }}>
 
           {/* Back to admin */}
-          <button onClick={() => router.push("/admin")} style={{ background: "none", border: "none", color: C.adminAccent, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 13, padding: 0 }}>
+          <button onClick={() => router.push(`/admin/pros/${proId}/dashboard`)} style={{ background: "none", border: "none", color: C.adminAccent, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 13, padding: 0 }}>
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
             ניהול
           </button>

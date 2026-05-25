@@ -87,16 +87,14 @@ function LoginForm() {
     router.push(from ?? (result.user?.role === "ADMIN" ? "/admin" : "/pro/dashboard"));
   }
 
-  if (loading) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: C.bg, fontFamily: "var(--font-outfit), 'Outfit', sans-serif" }}
-      >
-        <span style={{ color: C.onSurfaceVar, fontSize: 14 }}>טוען...</span>
+  if (loading) return (
+    <div style={{ minHeight: "100dvh", backgroundColor: C.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+        <span className="material-symbols-outlined pro-shimmer" style={{ fontSize: 32, fontVariationSettings: "'FILL' 1" }}>diamond</span>
+        <span style={{ fontSize: 13 }}>טוען...</span>
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
     <div

@@ -780,7 +780,7 @@ export default function ProEditPage() {
             animation: "spin 0.8s linear infinite",
           }}
         />
-        <span style={{ color: C.onSurface, fontSize: 15 }}>טוען דפי נחיתה...</span>
+        <span style={{ color: C.onSurface, fontSize: 15 }}>טוען...</span>
       </div>
     );
   }

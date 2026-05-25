@@ -13,9 +13,10 @@ interface Props {
   monthlyTotal: number;
   activity: ActivityItem[];
   onSwitchActivity: () => void;
+  editHref: string;
 }
 
-export function OverviewTab({ pro, monthlyLeads, monthlyCalls, monthlyTotal, activity, onSwitchActivity }: Props) {
+export function OverviewTab({ pro, monthlyLeads, monthlyCalls, monthlyTotal, activity, onSwitchActivity, editHref }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
@@ -57,7 +58,7 @@ export function OverviewTab({ pro, monthlyLeads, monthlyCalls, monthlyTotal, act
             צפה באתר  ↗
           </a>
           <a
-            href="/pro/edit"
+            href={editHref}
             style={{ flex: 1, height: 38, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: "rgba(222,185,244,0.1)", border: `1px solid ${C.primary}44`, borderRadius: 10, color: C.primary, fontSize: 12, fontWeight: 700, textDecoration: "none" }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 14 }}>edit_square</span>

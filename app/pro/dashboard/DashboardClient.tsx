@@ -8,8 +8,15 @@ import { ActivityTab } from "./_components/ActivityTab";
 import { ProfileTab } from "./_components/ProfileTab";
 import type { ProData, ActivityItem, Tab } from "./_components/types";
 
-export default function DashboardClient({ email }: { email: string }) {
+interface Props {
+  email: string;
+  /** כשמסופק — מצב צפייה של מנהל בדשבורד נציג ספציפי */
+  proId?: string;
+}
+
+export default function DashboardClient({ email, proId }: Props) {
   const router = useRouter();
+  const isAdminView = Boolean(proId);
   const [pro, setPro]           = useState<ProData | null>(null);
   const [loading, setLoading]   = useState(true);
   const [toggling, setToggling] = useState(false);
@@ -17,28 +24,39 @@ export default function DashboardClient({ email }: { email: string }) {
   const [tab, setTab]           = useState<Tab>("overview");
 
   useEffect(() => {
-    fetch("/api/pro/dashboard")
+    const url = isAdminView ? `/api/admin/pros/${proId}/dashboard` : "/api/pro/dashboard";
+    fetch(url)
       .then((r) => r.json())
       .then((d) => { setPro(d); setLoading(false); })
       .catch(() => { setError("שגיאה בטעינת הנתונים"); setLoading(false); });
-  }, []);
+  }, [proId, isAdminView]);
 
   async function toggleStatus() {
     if (!pro) return;
     setToggling(true);
-    const res = await fetch("/api/pro/status", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isActive: !pro.isActive }),
-    });
-    if (res.ok) {
-      const updated = await res.json();
-      setPro((prev) => prev ? { ...prev, isActive: updated.isActive } : prev);
+    if (isAdminView) {
+      await fetch(`/api/admin/pros/${proId}/toggle`, { method: "PATCH" });
+      const updated = await fetch(`/api/admin/pros/${proId}/dashboard`).then(r => r.json());
+      setPro(updated);
+    } else {
+      const res = await fetch("/api/pro/status", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !pro.isActive }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setPro((prev) => prev ? { ...prev, isActive: updated.isActive } : prev);
+      }
     }
     setToggling(false);
   }
 
   async function handleLogout() {
+    if (isAdminView) {
+      router.push("/admin?tab=pros");
+      return;
+    }
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/login");
     router.refresh();
@@ -89,27 +107,41 @@ export default function DashboardClient({ email }: { email: string }) {
       {/* Header */}
       <header style={{
         position: "sticky", top: 0, zIndex: 50,
-        background: "rgba(37, 41, 43, 0.65)",
+        background: "rgba(30,32,40,0.92)",
         backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
         borderBottom: "1px solid rgba(255,255,255,0.07)",
         display: "flex", justifyContent: "space-between", alignItems: "center",
         padding: "0 20px", height: 60,
       }}>
+        {isAdminView ? (
+          <button type="button" onClick={() => router.push("/admin?tab=pros")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, color: C.onSurfVar, fontSize: 13, padding: 0 }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">arrow_forward</span>
+            חזרה לנציגים
+          </button>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span className="material-symbols-outlined" style={{ color: C.primary, fontVariationSettings: "'FILL' 1" }} aria-hidden="true">diamond</span>
+            <span className="pro-shimmer" style={{ fontFamily: "var(--font-outfit), 'Outfit', sans-serif", fontSize: 20, fontWeight: 700, letterSpacing: "-0.03em" }}>
+              LUMINA LEAD
+            </span>
+          </div>
+        )}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span className="material-symbols-outlined" style={{ color: C.primary, fontVariationSettings: "'FILL' 1" }}>diamond</span>
-          <span className="pro-shimmer" style={{ fontFamily: "var(--font-outfit), 'Outfit', sans-serif", fontSize: 20, fontWeight: 700, letterSpacing: "-0.03em" }}>
-            LUMINA LEAD
-          </span>
-        </div>
-        <div style={{
-          width: 36, height: 36, borderRadius: "50%",
-          border: "1px solid rgba(244, 240, 185, 0.77)",
-          background: "rgba(222,185,244,0.1)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 13, fontWeight: 700, color: C.primary,
-          fontFamily: "var(--font-outfit), 'Outfit', sans-serif",
-        }}>
-          {pro.firstName[0]}{pro.lastName[0]}
+          {isAdminView && (
+            <span style={{ fontSize: 11, padding: "2px 10px", borderRadius: 999, background: `${C.tertiary}15`, border: `1px solid ${C.tertiary}33`, color: C.tertiary }}>
+              תצוגת מנהל
+            </span>
+          )}
+          <div style={{
+            width: 36, height: 36, borderRadius: "50%",
+            border: "1px solid rgba(244,240,185,0.77)",
+            background: "rgba(222,185,244,0.1)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 13, fontWeight: 700, color: C.primary,
+            fontFamily: "var(--font-outfit), 'Outfit', sans-serif",
+          }}>
+            {pro.firstName[0]}{pro.lastName[0]}
+          </div>
         </div>
       </header>
 
@@ -123,6 +155,7 @@ export default function DashboardClient({ email }: { email: string }) {
             monthlyTotal={monthlyTotal}
             activity={activity}
             onSwitchActivity={() => setTab("activity")}
+            editHref={isAdminView ? `/admin/pros/${proId}/edit` : "/pro/edit"}
           />
         )}
         {tab === "activity" && <ActivityTab activity={activity} />}

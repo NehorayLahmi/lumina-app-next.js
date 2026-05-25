@@ -77,6 +77,7 @@ export function ProsTab({ pros, onRefresh }: { pros: Pro[]; onRefresh: () => voi
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0, flexWrap: "wrap", justifyContent: "flex-end" }}>
                 <AdminToggle on={pro.isActive} locked={pro.adminLocked} loading={togglingId === pro.id} onToggle={() => toggle(pro)} />
+                <button onClick={() => router.push(`/admin/pros/${pro.id}/dashboard`)} style={{ background: "none", border: "none", cursor: "pointer", color: C.tertiary, fontSize: 11, fontWeight: 700, padding: "4px 6px" }}>דשבורד</button>
                 <button onClick={() => setEditing(pro)} style={{ background: "none", border: "none", cursor: "pointer", color: C.onSurfVar, fontSize: 11, fontWeight: 700, padding: "4px 6px" }}>פרטים</button>
                 <button onClick={() => { setDeleteErr(""); setDeleting(pro); }} style={{ background: "none", border: "none", cursor: "pointer", color: C.error, fontSize: 11, fontWeight: 700, padding: "4px 6px" }}>מחיקה</button>
               </div>
