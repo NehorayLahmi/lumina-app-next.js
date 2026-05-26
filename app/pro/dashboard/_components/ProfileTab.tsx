@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { CITIES, PROFESSIONS } from "@/lib/options";
 import { C } from "./constants";
 import { labelOf } from "./helpers";
-import { TelegramLoginButton, type TelegramUser } from "./TelegramLoginButton";
 import type { ProData } from "./types";
 
 interface Props {
@@ -17,23 +16,32 @@ interface Props {
 
 export function ProfileTab({ pro, email, toggling, onToggle, onLogout }: Props) {
   const [telegramId, setTelegramId] = useState<string | null | undefined>(pro.telegramChatId);
-  const [linking, setLinking]       = useState(false);
-  const [linkError, setLinkError]   = useState("");
+  const [code, setCode]             = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [genError, setGenError]     = useState("");
 
-  const handleTelegramAuth = useCallback(async (user: TelegramUser) => {
-    setLinking(true); setLinkError("");
+  const handleGenerateCode = async () => {
+    setGenerating(true); setGenError(""); setCode(null);
     try {
-      const res = await fetch("/api/pro/connect-telegram", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(user),
-      });
+      const res  = await fetch("/api/pro/generate-verification-code", { method: "POST" });
       const data = await res.json();
-      if (res.ok) { setTelegramId(data.telegramChatId); }
-      else        { setLinkError(data.message ?? "שגיאה בחיבור"); }
-    } catch { setLinkError("שגיאת חיבור"); }
-    setLinking(false);
-  }, []);
+      if (res.ok) { setCode(data.code); }
+      else        { setGenError(data.message ?? "שגיאה ביצירת קוד"); }
+    } catch { setGenError("שגיאת חיבור"); }
+    setGenerating(false);
+  };
+
+  // Poll for link confirmation when a code is shown
+  const checkLinked = async () => {
+    try {
+      const res  = await fetch("/api/pro/dashboard");
+      const data = await res.json();
+      if (res.ok && data.telegramChatId) {
+        setTelegramId(data.telegramChatId);
+        setCode(null);
+      }
+    } catch { /* ignore */ }
+  };
 
   const fields = [
     { icon: "person",      label: "שם מלא",    value: `${pro.firstName} ${pro.lastName}` },
@@ -110,11 +118,28 @@ export function ProfileTab({ pro, email, toggling, onToggle, onLogout }: Props) 
         </div>
         {!telegramId && (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {linking
-              ? <p style={{ fontSize: 12, color: C.onSurfVar }}>מחבר...</p>
-              : <TelegramLoginButton onAuth={handleTelegramAuth} />
-            }
-            {linkError && <p style={{ fontSize: 12, color: "#ffb4ab", margin: 0 }}>{linkError}</p>}
+            {code ? (
+              <>
+                <p style={{ fontSize: 12, color: C.onSurfVar, margin: 0 }}>שלח לבוט את הפקודה הבאה:</p>
+                <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 10, padding: "8px 12px", fontFamily: "monospace", fontSize: 15, color: C.primary, letterSpacing: "0.1em", textAlign: "center", direction: "ltr" }}>
+                  /start {code}
+                </div>
+                <p style={{ fontSize: 11, color: C.onSurfVar, margin: 0, textAlign: "center" }}>
+                  <a href="https://t.me/MyLuminaLeads_bot" target="_blank" rel="noopener noreferrer" style={{ color: C.primary }}>פתח את הבוט</a>
+                  {" "}· לאחר שליחת הפקודה{" "}
+                  <button onClick={checkLinked} style={{ background: "none", border: "none", color: C.primary, cursor: "pointer", fontSize: 11, padding: 0, textDecoration: "underline" }}>בדוק חיבור</button>
+                </p>
+              </>
+            ) : (
+              <button
+                onClick={handleGenerateCode}
+                disabled={generating}
+                style={{ background: `${C.primary}22`, border: `1px solid ${C.primary}44`, borderRadius: 10, padding: "8px 14px", color: C.primary, fontSize: 13, fontWeight: 600, cursor: generating ? "not-allowed" : "pointer", opacity: generating ? 0.6 : 1 }}
+              >
+                {generating ? "יוצר קוד..." : "צור קוד חיבור לטלגרם"}
+              </button>
+            )}
+            {genError && <p style={{ fontSize: 12, color: "#ffb4ab", margin: 0 }}>{genError}</p>}
           </div>
         )}
       </div>
