@@ -336,7 +336,7 @@ export default async function LandingPage({
       </main>
 
       {/* ── Sticky Mobile Call Bar ─────────────────────────────────────── */}
-      <div role="region" aria-label="חיוג מהיר" style={{ position: "fixed", bottom: 0, insetInline: 0, zIndex: 50, padding: "12px 16px 20px", background: `${SURFACE}ee`, backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", justifyContent: "center" }}>
+      <div role="region" aria-label="חיוג מהיר" style={{ position: "fixed", bottom: 0, insetInline: 0, zIndex: 50, padding: "12px 16px calc(20px + env(safe-area-inset-bottom))", background: `${SURFACE}ee`, backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", justifyContent: "center" }}>
         <CallButton href={`tel:${phoneIntl}`} landingPageId={data.id} destinationPhone={data.twilioNumber} ariaLabel={`התקשר עכשיו: ${phoneDisplay}`} className="pulse-gold" style={{
           display: "flex", alignItems: "center", gap: 12, justifyContent: "center",
           background: GOLD_CTR, color: ON_GOLD,
@@ -350,7 +350,7 @@ export default async function LandingPage({
       </div>
 
       {/* bottom padding so sticky bar doesn't overlap content */}
-      <div style={{ height: 80 }} />
+      <div style={{ height: "calc(80px + env(safe-area-inset-bottom))" }} />
     </div>
   );
 }

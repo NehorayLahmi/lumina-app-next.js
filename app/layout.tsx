@@ -20,8 +20,14 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "מערכת לידים — עמודי נחיתה",
+  title: "מערכת לידים עמודי נחיתה",
   description: "שירותים מקצועיים לפי עיר ומקצוע",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
