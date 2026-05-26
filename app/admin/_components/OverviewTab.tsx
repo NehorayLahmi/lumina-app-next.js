@@ -1,9 +1,34 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { C } from "./constants";
 import type { Stats } from "./types";
 
 export function OverviewTab({ stats }: { stats: Stats | null }) {
+  const [adminNotifyAll, setAdminNotifyAll] = useState<boolean | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/admin/settings")
+      .then(r => r.json())
+      .then(d => setAdminNotifyAll(d.adminNotifyAll ?? true))
+      .catch(() => {});
+  }, []);
+
+  const toggle = async () => {
+    if (adminNotifyAll === null) return;
+    setSaving(true);
+    const next = !adminNotifyAll;
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminNotifyAll: next }),
+      });
+      if (res.ok) setAdminNotifyAll(next);
+    } finally { setSaving(false); }
+  };
+
   if (!stats) return null;
 
   const cards = [
@@ -38,6 +63,32 @@ export function OverviewTab({ stats }: { stats: Stats | null }) {
             <p style={{ fontSize: 12, color: C.onSurfVar }}>{card.label}</p>
           </div>
         ))}
+      </section>
+
+      {/* Telegram settings */}
+      <section className="pro-glass" style={{ borderRadius: 20, padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 20, color: adminNotifyAll ? C.tertiary : C.onSurfVar, fontVariationSettings: "'FILL' 1" }}>send</span>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 600, color: C.onSurface, margin: 0 }}>קבלת עדכונים מכל נציג</p>
+            <p style={{ fontSize: 11, color: adminNotifyAll ? C.tertiary : C.onSurfVar, margin: 0 }}>
+              {adminNotifyAll === null ? "טוען..." : adminNotifyAll ? "פעיל — מקבל עדכונים מכולם" : "כבוי — כל נציג מקבל רק אליו"}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={toggle}
+          disabled={saving || adminNotifyAll === null}
+          style={{
+            width: 48, height: 26, borderRadius: 999,
+            background: adminNotifyAll ? C.tertiary : C.outlineVar,
+            border: "none", cursor: (saving || adminNotifyAll === null) ? "not-allowed" : "pointer",
+            position: "relative", transition: "background 0.2s",
+            opacity: saving ? 0.6 : 1, flexShrink: 0,
+          }}
+        >
+          <span style={{ position: "absolute", top: 3, left: adminNotifyAll ? 24 : 3, width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 4px rgba(0,0,0,0.3)", transition: "left 0.2s" }} />
+        </button>
       </section>
 
       {/* Chart */}
