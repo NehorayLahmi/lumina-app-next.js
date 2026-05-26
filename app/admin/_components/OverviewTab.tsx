@@ -6,7 +6,11 @@ import type { Stats } from "./types";
 
 export function OverviewTab({ stats }: { stats: Stats | null }) {
   const [adminNotifyAll, setAdminNotifyAll] = useState<boolean | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving]                 = useState(false);
+  const [broadcastMsg, setBroadcastMsg]     = useState("");
+  const [broadcastOpen, setBroadcastOpen]   = useState(false);
+  const [broadcastBusy, setBroadcastBusy]   = useState(false);
+  const [broadcastResult, setBroadcastResult] = useState("");
 
   useEffect(() => {
     fetch("/api/admin/settings")
@@ -27,6 +31,26 @@ export function OverviewTab({ stats }: { stats: Stats | null }) {
       });
       if (res.ok) setAdminNotifyAll(next);
     } finally { setSaving(false); }
+  };
+
+  const sendBroadcast = async () => {
+    if (!broadcastMsg.trim()) return;
+    setBroadcastBusy(true); setBroadcastResult("");
+    try {
+      const res  = await fetch("/api/admin/telegram/broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: broadcastMsg.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setBroadcastResult(`✅ נשלח ל-${data.sent} נציגים`);
+        setBroadcastMsg("");
+      } else {
+        setBroadcastResult(`❌ ${data.message ?? "שגיאה"}`);
+      }
+    } catch { setBroadcastResult("❌ שגיאת חיבור"); }
+    setBroadcastBusy(false);
   };
 
   if (!stats) return null;
@@ -89,6 +113,36 @@ export function OverviewTab({ stats }: { stats: Stats | null }) {
         >
           <span style={{ position: "absolute", top: 3, left: adminNotifyAll ? 24 : 3, width: 20, height: 20, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 4px rgba(0,0,0,0.3)", transition: "left 0.2s" }} />
         </button>
+      </section>
+
+      {/* Telegram broadcast */}
+      <section className="pro-glass" style={{ borderRadius: 20, padding: "14px 18px" }}>
+        <button onClick={() => { setBroadcastOpen(o => !o); setBroadcastResult(""); }} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", padding: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 20, color: C.primary, fontVariationSettings: "'FILL' 1" }}>campaign</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: C.onSurface }}>שלח הודעה לכל הנציגים</span>
+          </div>
+          <span className="material-symbols-outlined" style={{ fontSize: 18, color: C.onSurfVar, transition: "transform 0.2s", transform: broadcastOpen ? "rotate(180deg)" : "none" }}>expand_more</span>
+        </button>
+        {broadcastOpen && (
+          <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+            <textarea
+              value={broadcastMsg}
+              onChange={e => setBroadcastMsg(e.target.value)}
+              placeholder="כתוב הודעה לכל הנציגים המחוברים לטלגרם..."
+              rows={3}
+              style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: `1px solid ${C.outlineVar}44`, borderRadius: 10, padding: "10px 12px", color: C.onSurface, fontSize: 13, resize: "vertical", fontFamily: "inherit", boxSizing: "border-box" }}
+            />
+            <button
+              onClick={sendBroadcast}
+              disabled={broadcastBusy || !broadcastMsg.trim()}
+              style={{ alignSelf: "flex-end", background: `linear-gradient(135deg,${C.primary},${C.tertiary})`, border: "none", borderRadius: 10, padding: "8px 20px", color: "#001f28", fontSize: 13, fontWeight: 700, cursor: broadcastBusy ? "not-allowed" : "pointer", opacity: broadcastBusy ? 0.6 : 1 }}
+            >
+              {broadcastBusy ? "שולח..." : "שלח לכולם"}
+            </button>
+            {broadcastResult && <p style={{ fontSize: 12, color: broadcastResult.startsWith("✅") ? C.tertiary : "#ffb4ab", margin: 0 }}>{broadcastResult}</p>}
+          </div>
+        )}
       </section>
 
       {/* Chart */}

@@ -20,6 +20,31 @@ export function ProsTab({ pros, onRefresh }: { pros: Pro[]; onRefresh: () => voi
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [deleteErr, setDeleteErr]   = useState("");
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [msgProId, setMsgProId]     = useState<string | null>(null);
+  const [msgText, setMsgText]       = useState("");
+  const [msgBusy, setMsgBusy]       = useState(false);
+  const [msgResult, setMsgResult]   = useState("");
+
+  const sendMsg = async (proId: string) => {
+    if (!msgText.trim()) return;
+    setMsgBusy(true); setMsgResult("");
+    try {
+      const res  = await fetch(`/api/admin/telegram/send/${proId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msgText.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok) { setMsgResult("✅ נשלח"); setMsgText(""); }
+      else        { setMsgResult(`❌ ${data.message ?? "שגיאה"}`); }
+    } catch { setMsgResult("❌ שגיאת חיבור"); }
+    setMsgBusy(false);
+  };
+
+  const openMsg = (pro: Pro) => {
+    setMsgProId(msgProId === pro.id ? null : pro.id);
+    setMsgText(""); setMsgResult("");
+  };
 
   const filtered = pros.filter(p => {
     const q = search.toLowerCase();
@@ -79,9 +104,35 @@ export function ProsTab({ pros, onRefresh }: { pros: Pro[]; onRefresh: () => voi
                 <AdminToggle on={pro.isActive} locked={pro.adminLocked} loading={togglingId === pro.id} onToggle={() => toggle(pro)} />
                 <button onClick={() => router.push(`/admin/pros/${pro.id}/dashboard`)} style={{ background: "none", border: "none", cursor: "pointer", color: C.tertiary, fontSize: 11, fontWeight: 700, padding: "4px 6px" }}>דשבורד</button>
                 <button onClick={() => setEditing(pro)} style={{ background: "none", border: "none", cursor: "pointer", color: C.onSurfVar, fontSize: 11, fontWeight: 700, padding: "4px 6px" }}>פרטים</button>
+                {pro.telegramChatId && (
+                  <button onClick={() => openMsg(pro)} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 6px" }} title="שלח הודעה בטלגרם">
+                    <span className="material-symbols-outlined" style={{ fontSize: 16, color: msgProId === pro.id ? C.primary : C.onSurfVar, fontVariationSettings: "'FILL' 1" }}>send</span>
+                  </button>
+                )}
                 <button onClick={() => { setDeleteErr(""); setDeleting(pro); }} style={{ background: "none", border: "none", cursor: "pointer", color: C.error, fontSize: 11, fontWeight: 700, padding: "4px 6px" }}>מחיקה</button>
               </div>
             </div>
+            {msgProId === pro.id && (
+              <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+                <textarea
+                  value={msgText}
+                  onChange={e => setMsgText(e.target.value)}
+                  placeholder={`הודעה ל-${pro.firstName}...`}
+                  rows={2}
+                  style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: `1px solid ${C.outlineVar}44`, borderRadius: 8, padding: "8px 10px", color: C.onSurface, fontSize: 12, resize: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+                />
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <button
+                    onClick={() => sendMsg(pro.id)}
+                    disabled={msgBusy || !msgText.trim()}
+                    style={{ background: `${C.primary}22`, border: `1px solid ${C.primary}44`, borderRadius: 8, padding: "5px 14px", color: C.primary, fontSize: 12, fontWeight: 700, cursor: msgBusy ? "not-allowed" : "pointer", opacity: msgBusy ? 0.6 : 1 }}
+                  >
+                    {msgBusy ? "שולח..." : "שלח"}
+                  </button>
+                  {msgResult && <span style={{ fontSize: 11, color: msgResult.startsWith("✅") ? C.tertiary : "#ffb4ab" }}>{msgResult}</span>}
+                </div>
+              </div>
+            )}
           </div>
         ))}
         {filtered.length === 0 && (
