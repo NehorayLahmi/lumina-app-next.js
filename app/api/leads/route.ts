@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { BACKEND_URL } from "@/lib/config";
-import { sendTelegram, buildLeadMessage } from "@/lib/telegram";
 
 export async function POST(req: NextRequest) {
   let body: { clientName?: string; clientPhone?: string; city?: string; profession?: string };
@@ -33,17 +32,5 @@ export async function POST(req: NextRequest) {
   }
 
   const data = await backendRes.json();
-
-  if (backendRes.ok) {
-    // data.telegramChatId — the backend should return this field from the matched pro
-    const chatId: string | undefined = data.telegramChatId ?? data.pro?.telegramChatId;
-    const fallbackChatId = process.env.TELEGRAM_CHAT_ID;
-    const targetChatId = chatId || fallbackChatId;
-
-    if (targetChatId) {
-      sendTelegram(targetChatId, buildLeadMessage({ clientName, clientPhone, city: city!, profession: profession! }));
-    }
-  }
-
   return NextResponse.json(data, { status: backendRes.status });
 }
