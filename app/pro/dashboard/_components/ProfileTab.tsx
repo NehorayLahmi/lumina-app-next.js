@@ -20,18 +20,21 @@ export function ProfileTab({ pro, email, toggling, onToggle, onLogout }: Props) 
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError]     = useState("");
 
-  const handleGenerateCode = async () => {
-    setGenerating(true); setGenError(""); setCode(null);
+  const handleConnect = async () => {
+    setGenerating(true); setGenError("");
     try {
       const res  = await fetch("/api/pro/generate-verification-code", { method: "POST" });
       const data = await res.json();
-      if (res.ok) { setCode(data.code); }
-      else        { setGenError(data.message ?? "שגיאה ביצירת קוד"); }
+      if (res.ok) {
+        setCode(data.code);
+        window.open(`https://t.me/MyLuminaLeads_bot?start=${data.code}`, "_blank");
+      } else {
+        setGenError(data.message ?? "שגיאה ביצירת קוד");
+      }
     } catch { setGenError("שגיאת חיבור"); }
     setGenerating(false);
   };
 
-  // Poll for link confirmation when a code is shown
   const checkLinked = async () => {
     try {
       const res  = await fetch("/api/pro/dashboard");
@@ -120,23 +123,33 @@ export function ProfileTab({ pro, email, toggling, onToggle, onLogout }: Props) 
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {code ? (
               <>
-                <p style={{ fontSize: 12, color: C.onSurfVar, margin: 0 }}>שלח לבוט את הפקודה הבאה:</p>
-                <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 10, padding: "8px 12px", fontFamily: "monospace", fontSize: 15, color: C.primary, letterSpacing: "0.1em", textAlign: "center", direction: "ltr" }}>
-                  /start {code}
-                </div>
-                <p style={{ fontSize: 11, color: C.onSurfVar, margin: 0, textAlign: "center" }}>
-                  <a href="https://t.me/MyLuminaLeads_bot" target="_blank" rel="noopener noreferrer" style={{ color: C.primary }}>פתח את הבוט</a>
-                  {" "}· לאחר שליחת הפקודה{" "}
-                  <button onClick={checkLinked} style={{ background: "none", border: "none", color: C.primary, cursor: "pointer", fontSize: 11, padding: 0, textDecoration: "underline" }}>בדוק חיבור</button>
+                <p style={{ fontSize: 12, color: C.tertiary, margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 15 }}>check_circle</span>
+                  הבוט נפתח — לחץ שלח בטלגרם
                 </p>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button
+                    onClick={() => window.open(`https://t.me/MyLuminaLeads_bot?start=${code}`, "_blank")}
+                    style={{ flex: 1, background: `${C.primary}18`, border: `1px solid ${C.primary}33`, borderRadius: 10, padding: "8px 12px", color: C.primary, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+                  >
+                    פתח בוט שוב
+                  </button>
+                  <button
+                    onClick={checkLinked}
+                    style={{ flex: 1, background: `${C.tertiary}18`, border: `1px solid ${C.tertiary}33`, borderRadius: 10, padding: "8px 12px", color: C.tertiary, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+                  >
+                    בדוק חיבור ✓
+                  </button>
+                </div>
               </>
             ) : (
               <button
-                onClick={handleGenerateCode}
+                onClick={handleConnect}
                 disabled={generating}
-                style={{ background: `${C.primary}22`, border: `1px solid ${C.primary}44`, borderRadius: 10, padding: "8px 14px", color: C.primary, fontSize: 13, fontWeight: 600, cursor: generating ? "not-allowed" : "pointer", opacity: generating ? 0.6 : 1 }}
+                style={{ background: `linear-gradient(135deg, ${C.primary}33, ${C.tertiary}22)`, border: `1px solid ${C.primary}44`, borderRadius: 10, padding: "10px 14px", color: C.onSurface, fontSize: 13, fontWeight: 600, cursor: generating ? "not-allowed" : "pointer", opacity: generating ? 0.6 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
               >
-                {generating ? "יוצר קוד..." : "צור קוד חיבור לטלגרם"}
+                <span className="material-symbols-outlined" style={{ fontSize: 17, fontVariationSettings: "'FILL' 1" }}>send</span>
+                {generating ? "מכין קישור..." : "חבר טלגרם"}
               </button>
             )}
             {genError && <p style={{ fontSize: 12, color: "#ffb4ab", margin: 0 }}>{genError}</p>}
