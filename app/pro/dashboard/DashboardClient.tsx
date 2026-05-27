@@ -110,9 +110,9 @@ export default function DashboardClient({ email, proId }: Props) {
         background: "rgba(30,32,40,0.92)",
         backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
         borderBottom: "1px solid rgba(255,255,255,0.07)",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-        padding: "0 20px", height: 60,
       }}>
+        <div className="pwa-status-spacer" />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 20px", height: 60 }}>
         {isAdminView ? (
           <button type="button" onClick={() => router.push("/admin?tab=pros")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, color: C.onSurfVar, fontSize: 13, padding: 0 }}>
             <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">arrow_forward</span>
@@ -142,6 +142,7 @@ export default function DashboardClient({ email, proId }: Props) {
           }}>
             {pro.firstName[0]}{pro.lastName[0]}
           </div>
+        </div>
         </div>
       </header>
 

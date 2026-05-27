@@ -16,9 +16,9 @@ export default async function AdminPage() {
         position: "sticky", top: 0, zIndex: 50,
         background: "rgba(37, 41, 43, 0.65)", backdropFilter: "blur(16px)",
         borderBottom: `1px solid ${C.outlineVar}44`,
-        padding: "12px 24px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
+        <div className="pwa-status-spacer" />
+        <div style={{ padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span className="material-symbols-outlined" style={{
             fontSize: 22, color: C.primary,
@@ -43,6 +43,7 @@ export default async function AdminPage() {
             מנהל על
           </span>
           <LogoutButton />
+        </div>
         </div>
       </header>
 

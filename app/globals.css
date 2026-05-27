@@ -205,6 +205,14 @@ body {
   }
 }
 
+/* ── PWA safe-area top spacer ───────────────────────────────────── */
+/* height: 0 in browser, env(safe-area-inset-top) when installed as PWA */
+.pwa-status-spacer { height: 0; }
+@media (display-mode: standalone) {
+  .pwa-status-spacer { height: env(safe-area-inset-top); }
+  .pwa-tab-sticky    { top: calc(60px + env(safe-area-inset-top)) !important; }
+}
+
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
