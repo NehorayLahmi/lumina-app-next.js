@@ -109,7 +109,7 @@ function LoginForm() {
 
   return (
     <div
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pwa-page-safe-top"
       style={{ backgroundColor: C.bg, fontFamily: "var(--font-outfit), 'Outfit', sans-serif" }}
       dir="rtl"
     >
@@ -166,7 +166,7 @@ function LoginForm() {
             </span>
           </div>
           <h1
-            className="text-5xl font-bold tracking-tighter bg-clip-text"
+            className="text-4xl font-bold tracking-tighter bg-clip-text"
             style={{
               background: `linear-gradient(135deg, ${C.primary}, ${C.secondary}, ${C.tertiary})`,
               WebkitBackgroundClip: "text",
