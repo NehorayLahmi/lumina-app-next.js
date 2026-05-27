@@ -20,14 +20,21 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "מערכת לידים עמודי נחיתה",
-  description: "שירותים מקצועיים לפי עיר ומקצוע",
+  title: "Lumina Leads",
+  description: "מערכת ניהול לידים — שירותים מקצועיים",
+  applicationName: "Lumina Leads",
+  appleWebApp: {
+    capable: true,
+    title: "Lumina Leads",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#d7baff",
 };
 
 export default function RootLayout({
