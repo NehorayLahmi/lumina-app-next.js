@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PROFESSIONS, CITIES } from "@/lib/options";
+import { isValidEmail, isValidPhone, isValidName, isValidPassword } from "@/lib/validate";
 
 const C = {
   bg:           "#15171c",
@@ -90,6 +91,26 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
 
+    if (!isValidName(firstName.trim())) {
+      setError("שם פרטי לא תקין — יש להזין שם בעברית או באנגלית (2–50 תווים)");
+      return;
+    }
+    if (!isValidName(lastName.trim())) {
+      setError("שם משפחה לא תקין — יש להזין שם בעברית או באנגלית (2–50 תווים)");
+      return;
+    }
+    if (!isValidEmail(email.trim())) {
+      setError("כתובת אימייל לא תקינה");
+      return;
+    }
+    if (!isValidPhone(phone.trim())) {
+      setError("מספר טלפון לא תקין — יש להזין מספר ישראלי (לדוגמה: 050-1234567)");
+      return;
+    }
+    if (!isValidPassword(password)) {
+      setError("הסיסמה חייבת להכיל בין 6 ל-100 תווים");
+      return;
+    }
     if (password !== confirm) {
       setError("הסיסמאות אינן תואמות");
       return;

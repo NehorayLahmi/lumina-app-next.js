@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { isValidName, isValidPhone } from "@/lib/validate";
 
 interface Props {
   profession: string;
@@ -11,16 +12,31 @@ interface Props {
 type FormState = "idle" | "loading" | "success" | "error";
 
 export function LeadForm({ profession, city, proName }: Props) {
-  const [name, setName]     = useState("");
-  const [phone, setPhone]   = useState("");
-  const [state, setState]   = useState<FormState>("idle");
-  const [errMsg, setErrMsg] = useState("");
+  const [name, setName]         = useState("");
+  const [phone, setPhone]       = useState("");
+  const [state, setState]       = useState<FormState>("idle");
+  const [errMsg, setErrMsg]     = useState("");
+  const [nameErr, setNameErr]   = useState("");
+  const [phoneErr, setPhoneErr] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!name.trim() || !phone.trim()) return;
+    setNameErr(""); setPhoneErr(""); setErrMsg("");
+
+    let valid = true;
+    if (!name.trim()) {
+      setNameErr("יש להזין שם מלא"); valid = false;
+    } else if (!isValidName(name.trim())) {
+      setNameErr("שם לא תקין — עברית או אנגלית בלבד (2–50 תווים)"); valid = false;
+    }
+    if (!phone.trim()) {
+      setPhoneErr("יש להזין מספר טלפון"); valid = false;
+    } else if (!isValidPhone(phone.trim())) {
+      setPhoneErr("מספר לא תקין — יש להזין מספר ישראלי (לדוגמה: 050-1234567)"); valid = false;
+    }
+    if (!valid) return;
+
     setState("loading");
-    setErrMsg("");
     try {
       const res = await fetch("/api/leads", {
         method: "POST",
@@ -81,14 +97,15 @@ export function LeadForm({ profession, city, proName }: Props) {
             id="lead-full-name"
             type="text"
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={e => { setName(e.target.value); if (nameErr) setNameErr(""); }}
             required
             autoComplete="name"
             placeholder="ישראל ישראלי"
-            style={inputStyle}
-            onFocus={e => { e.currentTarget.style.borderColor = "rgba(0,242,255,0.7)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,242,255,0.25)"; e.currentTarget.style.outline = "none"; }}
-            onBlur={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }}
+            style={{ ...inputStyle, borderColor: nameErr ? "rgba(255,100,80,0.6)" : undefined }}
+            onFocus={e => { e.currentTarget.style.borderColor = nameErr ? "rgba(255,100,80,0.8)" : "rgba(0,242,255,0.7)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,242,255,0.25)"; e.currentTarget.style.outline = "none"; }}
+            onBlur={e => { e.currentTarget.style.borderColor = nameErr ? "rgba(255,100,80,0.6)" : "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }}
           />
+          {nameErr && <p role="alert" style={{ fontSize: 12, color: "#ffb4ab", margin: "4px 0 0 4px" }}>{nameErr}</p>}
         </div>
         <div>
           <label
@@ -101,15 +118,16 @@ export function LeadForm({ profession, city, proName }: Props) {
             id="lead-phone"
             type="tel"
             value={phone}
-            onChange={e => setPhone(e.target.value)}
+            onChange={e => { setPhone(e.target.value); if (phoneErr) setPhoneErr(""); }}
             required
             autoComplete="tel"
             placeholder="05X-XXX-XXXX"
             dir="ltr"
-            style={{ ...inputStyle, textAlign: "left" }}
-            onFocus={e => { e.currentTarget.style.borderColor = "rgba(0,242,255,0.7)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,242,255,0.25)"; e.currentTarget.style.outline = "none"; }}
-            onBlur={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }}
+            style={{ ...inputStyle, textAlign: "left", borderColor: phoneErr ? "rgba(255,100,80,0.6)" : undefined }}
+            onFocus={e => { e.currentTarget.style.borderColor = phoneErr ? "rgba(255,100,80,0.8)" : "rgba(0,242,255,0.7)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,242,255,0.25)"; e.currentTarget.style.outline = "none"; }}
+            onBlur={e => { e.currentTarget.style.borderColor = phoneErr ? "rgba(255,100,80,0.6)" : "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }}
           />
+          {phoneErr && <p role="alert" style={{ fontSize: 12, color: "#ffb4ab", margin: "4px 0 0 4px" }}>{phoneErr}</p>}
         </div>
         {state === "error" && (
           <p

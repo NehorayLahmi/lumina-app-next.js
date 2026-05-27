@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { isValidEmail } from "@/lib/validate";
 
 // ── Color tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -73,9 +74,19 @@ function LoginForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (!isValidEmail(email.trim())) {
+      setError("כתובת אימייל לא תקינה");
+      return;
+    }
+    if (!password) {
+      setError("יש להזין סיסמה");
+      return;
+    }
+
     setSubmitting(true);
 
-    const result = await login(email, password);
+    const result = await login(email.trim(), password);
     setSubmitting(false);
 
     if (result.error) {
