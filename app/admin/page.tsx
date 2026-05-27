@@ -4,7 +4,7 @@ import LogoutButton from "@/components/LogoutButton";
 import AdminClient from "./AdminClient";
 import { C } from "./_components/constants";
 
-export const metadata = { title: "פאנל ניהול - מערכת לידים" };
+export const metadata = { title: "פאנל ניהול מערכת לידים" };
 
 export default async function AdminPage() {
   const user = await getAuthUser();
