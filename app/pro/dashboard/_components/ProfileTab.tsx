@@ -123,16 +123,22 @@ export function ProfileTab({ pro, email, toggling, onToggle, onLogout }: Props) 
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {code ? (
               <>
-                <p style={{ fontSize: 12, color: C.tertiary, margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 15 }}>check_circle</span>
-                  הבוט נפתח — לחץ שלח בטלגרם
+                <p style={{ fontSize: 11, color: C.onSurfVar, margin: 0 }}>
+                  אם הבוט לא שלח אוטומטית — שלח ידנית:
                 </p>
+                <button
+                  onClick={() => navigator.clipboard?.writeText(`/start ${code}`)}
+                  style={{ background: "rgba(0,0,0,0.3)", borderRadius: 10, padding: "10px 12px", fontFamily: "monospace", fontSize: 14, color: C.primary, letterSpacing: "0.08em", textAlign: "center", direction: "ltr", border: `1px solid ${C.primary}33`, cursor: "pointer", width: "100%" }}
+                  title="לחץ להעתקה"
+                >
+                  /start {code}
+                </button>
                 <div style={{ display: "flex", gap: 8 }}>
                   <button
                     onClick={() => window.open(`https://t.me/MyLuminaLeads_bot?start=${code}`, "_blank")}
                     style={{ flex: 1, background: `${C.primary}18`, border: `1px solid ${C.primary}33`, borderRadius: 10, padding: "8px 12px", color: C.primary, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
                   >
-                    פתח בוט שוב
+                    פתח בוט
                   </button>
                   <button
                     onClick={checkLinked}
