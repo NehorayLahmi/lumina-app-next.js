@@ -6,6 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Lumina",
     description: "מערכת ניהול לידים — בעל מקצוע",
     start_url: "/pro/dashboard",
+    scope: "/",
     display: "standalone",
     orientation: "portrait",
     background_color: "#15171c",
