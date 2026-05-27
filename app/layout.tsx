@@ -21,7 +21,7 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: "Lumina Leads",
-  description: "מערכת ניהול לידים — שירותים מקצועיים",
+  description: "מערכת ניהול לידים",
   applicationName: "Lumina Leads",
   appleWebApp: {
     capable: true,
