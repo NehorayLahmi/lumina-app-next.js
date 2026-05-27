@@ -19,6 +19,14 @@ export function ProfileTab({ pro, email, toggling, onToggle, onLogout }: Props) 
   const [code, setCode]             = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError]     = useState("");
+  const [copied, setCopied]         = useState(false);
+
+  const copyCode = (c: string) => {
+    navigator.clipboard?.writeText(`/start ${c}`).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   const handleConnect = async () => {
     setGenerating(true); setGenError("");
@@ -127,12 +135,18 @@ export function ProfileTab({ pro, email, toggling, onToggle, onLogout }: Props) 
                   אם הבוט לא שלח אוטומטית — שלח ידנית:
                 </p>
                 <button
-                  onClick={() => navigator.clipboard?.writeText(`/start ${code}`)}
-                  style={{ background: "rgba(0,0,0,0.3)", borderRadius: 10, padding: "10px 12px", fontFamily: "monospace", fontSize: 14, color: C.primary, letterSpacing: "0.08em", textAlign: "center", direction: "ltr", border: `1px solid ${C.primary}33`, cursor: "pointer", width: "100%" }}
-                  title="לחץ להעתקה"
+                  onClick={() => copyCode(code)}
+                  style={{ background: copied ? `${C.tertiary}18` : "rgba(0,0,0,0.3)", borderRadius: 10, padding: "10px 12px 10px 44px", fontFamily: "monospace", fontSize: 14, color: copied ? C.tertiary : C.primary, letterSpacing: "0.08em", textAlign: "center", direction: "ltr", border: `1px solid ${copied ? C.tertiary : C.primary}44`, cursor: "pointer", width: "100%", position: "relative", transition: "all 0.2s" }}
                 >
                   /start {code}
+                  <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 13, fontFamily: "sans-serif" }}>
+                    {copied
+                      ? <span className="material-symbols-outlined" style={{ fontSize: 16, color: C.tertiary, fontVariationSettings: "'FILL' 1" }}>check</span>
+                      : <span className="material-symbols-outlined" style={{ fontSize: 16, color: C.onSurfVar }}>content_copy</span>
+                    }
+                  </span>
                 </button>
+                {copied && <p style={{ fontSize: 11, color: C.tertiary, margin: 0, textAlign: "center" }}>הועתק! הדבק בצ׳אט של הבוט</p>}
                 <div style={{ display: "flex", gap: 8 }}>
                   <button
                     onClick={() => window.open(`https://t.me/MyLuminaLeads_bot?start=${code}`, "_blank")}
