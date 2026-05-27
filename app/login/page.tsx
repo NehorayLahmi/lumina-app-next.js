@@ -109,7 +109,7 @@ function LoginForm() {
 
   return (
     <div
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pwa-page-safe-top"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
       style={{ backgroundColor: C.bg, fontFamily: "var(--font-outfit), 'Outfit', sans-serif" }}
       dir="rtl"
     >
@@ -166,12 +166,13 @@ function LoginForm() {
             </span>
           </div>
           <h1
-            className="text-4xl font-bold tracking-tighter bg-clip-text"
+            className="text-4xl font-bold tracking-tight bg-clip-text"
             style={{
               background: `linear-gradient(135deg, ${C.primary}, ${C.secondary}, ${C.tertiary})`,
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               fontFamily: "var(--font-outfit), 'Outfit', sans-serif",
+              padding: "0 3px",
             }}
           >
             LUMINA LEADS
