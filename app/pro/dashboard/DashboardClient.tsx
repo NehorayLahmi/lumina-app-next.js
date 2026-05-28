@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { C } from "./_components/constants";
 import { OverviewTab } from "./_components/OverviewTab";
@@ -23,13 +23,25 @@ export default function DashboardClient({ email, proId }: Props) {
   const [error, setError]       = useState("");
   const [tab, setTab]           = useState<Tab>("overview");
 
-  useEffect(() => {
+  const loadData = useCallback(async (initial = false) => {
     const url = isAdminView ? `/api/admin/pros/${proId}/dashboard` : "/api/pro/dashboard";
-    fetch(url)
-      .then((r) => r.json())
-      .then((d) => { setPro(d); setLoading(false); })
-      .catch(() => { setError("שגיאה בטעינת הנתונים"); setLoading(false); });
+    try {
+      const d = await fetch(url).then(r => r.json());
+      setPro(d);
+    } catch {
+      if (initial) setError("שגיאה בטעינת הנתונים");
+    } finally {
+      if (initial) setLoading(false);
+    }
   }, [proId, isAdminView]);
+
+  useEffect(() => {
+    loadData(true);
+    const interval = setInterval(() => loadData(), 30_000);
+    const onVisible = () => { if (document.visibilityState === "visible") loadData(); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => { clearInterval(interval); document.removeEventListener("visibilitychange", onVisible); };
+  }, [loadData]);
 
   async function toggleStatus() {
     if (!pro) return;

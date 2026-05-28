@@ -23,8 +23,8 @@ export default function AdminClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
 
-  const loadAll = useCallback(async () => {
-    setLoading(true);
+  const loadAll = useCallback(async (initial = false) => {
+    if (initial) setLoading(true);
     try {
       const [sR, pR, pgR, cR, lR] = await Promise.all([
         fetch("/api/admin/stats"), fetch("/api/admin/pros"), fetch("/api/admin/landing-pages"),
@@ -36,11 +36,17 @@ export default function AdminClient() {
       setPages(Array.isArray(pg) ? pg : []);
       setCalls(Array.isArray(c) ? c : []);
       setLeads(Array.isArray(l) ? l : []);
-    } catch { setError("שגיאה בטעינת הנתונים"); }
-    setLoading(false);
+    } catch { if (initial) setError("שגיאה בטעינת הנתונים"); }
+    if (initial) setLoading(false);
   }, []);
 
-  useEffect(() => { loadAll(); }, [loadAll]);
+  useEffect(() => {
+    loadAll(true);
+    const interval = setInterval(() => loadAll(), 30_000);
+    const onVisible = () => { if (document.visibilityState === "visible") loadAll(); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => { clearInterval(interval); document.removeEventListener("visibilitychange", onVisible); };
+  }, [loadAll]);
 
   const TABS: { key: Tab; icon: string; label: string }[] = [
     { key: "overview", icon: "dashboard", label: "סקירה" },
