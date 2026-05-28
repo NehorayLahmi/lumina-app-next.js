@@ -86,8 +86,14 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
           <option value="">כל הנציגים</option>
           {pros.map(p => <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>)}
         </select>
-        <input type="date" value={dateFrom} placeholder="מתאריך" onChange={e => { setDateFrom(e.target.value); resetPage(); }} style={{ ...adminInput, flex: "1 1 120px", minWidth: 110, height: 38, borderRadius: 10, cursor: "pointer" }} />
-        <input type="date" value={dateTo} placeholder="עד תאריך" onChange={e => { setDateTo(e.target.value); resetPage(); }} style={{ ...adminInput, flex: "1 1 120px", minWidth: 110, height: 38, borderRadius: 10, cursor: "pointer" }} />
+        <label style={{ display: "flex", flexDirection: "column", gap: 3, flex: "1 1 120px", minWidth: 110 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: C.onSurfVar, letterSpacing: "0.05em" }}>מתאריך</span>
+          <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); resetPage(); }} style={{ ...adminInput, height: 38, borderRadius: 10, cursor: "pointer", width: "100%" }} />
+        </label>
+        <label style={{ display: "flex", flexDirection: "column", gap: 3, flex: "1 1 120px", minWidth: 110 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: C.onSurfVar, letterSpacing: "0.05em" }}>עד תאריך</span>
+          <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); resetPage(); }} style={{ ...adminInput, height: 38, borderRadius: 10, cursor: "pointer", width: "100%" }} />
+        </label>
       </div>
 
       {/* Items */}
