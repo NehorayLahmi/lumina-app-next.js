@@ -17,6 +17,8 @@ export const C = {
 export const STATUS_LABELS: Record<string, string> = {
   NEW: "חדש", ASSIGNED: "שויך", NOTIFIED: "נשלח", CONVERTED: "הומר",
   completed: "הושלם", "no-answer": "לא ענה", busy: "תפוס", failed: "נכשל",
+  "in-progress": "בשיחה", ringing: "מצלצל", queued: "בתור", canceled: "בוטל",
+  initiated: "יזום",
 };
 
 export const STATUS_BG: Record<string, string> = {
@@ -24,10 +26,15 @@ export const STATUS_BG: Record<string, string> = {
   NOTIFIED: "rgba(255,172,232,0.15)", CONVERTED: "rgba(0,218,247,0.2)",
   completed: "rgba(0,218,247,0.2)", "no-answer": "rgba(255,180,171,0.15)",
   busy: "rgba(255,172,232,0.15)", failed: "rgba(255,180,171,0.15)",
+  "in-progress": "rgba(0,218,247,0.2)", ringing: "rgba(255,172,232,0.15)",
+  queued: "rgba(205,195,206,0.12)", canceled: "rgba(255,180,171,0.15)",
+  initiated: "rgba(255,172,232,0.15)",
 };
 
 export const STATUS_CLR: Record<string, string> = {
   NEW: C.primary, ASSIGNED: "#00daf7", NOTIFIED: "#fface8",
   CONVERTED: "#00daf7", completed: "#00daf7",
   "no-answer": "#ffb4ab", busy: "#fface8", failed: "#ffb4ab",
+  "in-progress": "#00daf7", ringing: "#fface8", queued: "#cdc3ce",
+  canceled: "#ffb4ab", initiated: "#fface8",
 };

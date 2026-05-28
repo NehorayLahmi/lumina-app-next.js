@@ -17,11 +17,15 @@ export const C = {
 export const STATUS_LABELS: Record<string, string> = {
   NEW: "חדש", ASSIGNED: "שויך", NOTIFIED: "נשלח", CONVERTED: "הומר",
   completed: "הושלם", "no-answer": "לא ענה", busy: "תפוס", failed: "נכשל",
+  "in-progress": "בשיחה", ringing: "מצלצל", queued: "בתור", canceled: "בוטל",
+  initiated: "יזום",
 };
 
 export const STATUS_CLR: Record<string, string> = {
   NEW: C.primary, ASSIGNED: C.tertiary, NOTIFIED: C.secondary, CONVERTED: C.tertiary,
   completed: C.tertiary, "no-answer": C.error, busy: C.secondary, failed: C.error,
+  "in-progress": C.tertiary, ringing: C.secondary, queued: C.onSurfVar, canceled: C.error,
+  initiated: C.secondary,
 };
 
 export const adminInput: React.CSSProperties = {
