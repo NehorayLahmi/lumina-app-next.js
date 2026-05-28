@@ -3,7 +3,7 @@
 import type React from "react";
 import { useState, useMemo } from "react";
 import { CITIES, PROFESSIONS } from "@/lib/options";
-import { C, adminInput, adminSelect } from "./constants";
+import { C, adminInput, adminSelect, STATUS_LABELS } from "./constants";
 import { labelOf, formatDate, formatDuration } from "./helpers";
 import { Badge } from "./Badge";
 import type { Call, Lead, Pro, TrafficSub } from "./types";
@@ -86,14 +86,16 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
           <option value="">כל הנציגים</option>
           {pros.map(p => <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>)}
         </select>
-        <label style={{ display: "flex", flexDirection: "column", gap: 3, flex: "1 1 120px", minWidth: 110 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: C.onSurfVar, letterSpacing: "0.05em" }}>מתאריך</span>
-          <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); resetPage(); }} style={{ ...adminInput, height: 38, borderRadius: 10, cursor: "pointer", width: "100%" }} />
-        </label>
-        <label style={{ display: "flex", flexDirection: "column", gap: 3, flex: "1 1 120px", minWidth: 110 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: C.onSurfVar, letterSpacing: "0.05em" }}>עד תאריך</span>
-          <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); resetPage(); }} style={{ ...adminInput, height: 38, borderRadius: 10, cursor: "pointer", width: "100%" }} />
-        </label>
+        <div style={{ display: "flex", gap: 8, flex: "2 1 240px", minWidth: 220 }}>
+          <label style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: C.onSurfVar, letterSpacing: "0.05em" }}>מתאריך</span>
+            <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); resetPage(); }} style={{ ...adminInput, height: 38, borderRadius: 10, cursor: "pointer", direction: "ltr" }} />
+          </label>
+          <label style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: C.onSurfVar, letterSpacing: "0.05em" }}>עד תאריך</span>
+            <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); resetPage(); }} style={{ ...adminInput, height: 38, borderRadius: 10, cursor: "pointer", direction: "ltr" }} />
+          </label>
+        </div>
       </div>
 
       {/* Items */}
@@ -121,7 +123,7 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
                 <div style={{ padding: "12px 16px", background: `${C.surfHigh}99`, borderTop: `1px solid ${C.outlineVar}44`, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 20px" }}>
                   <Detail label="מתקשר" value={c.callerPhone || "—"} />
                   <Detail label="יעד" value={c.destinationPhone || "—"} />
-                  <Detail label="סטטוס" value={c.status} />
+                  <Detail label="סטטוס" value={STATUS_LABELS[c.status] ?? c.status} />
                   <Detail label="משך" value={formatDuration(c.duration)} />
                   <Detail label="תאריך" value={formatDate(c.createdAt)} />
                   <Detail label="מזהה" value={c.id} mono />
@@ -163,7 +165,7 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
                   <Detail label="טלפון" value={l.clientPhone} />
                   <Detail label="עיר" value={labelOf(CITIES, l.city)} />
                   <Detail label="מקצוע" value={labelOf(PROFESSIONS, l.profession)} />
-                  <Detail label="סטטוס" value={l.status} />
+                  <Detail label="סטטוס" value={STATUS_LABELS[l.status] ?? l.status} />
                   <Detail label="תאריך" value={formatDate(l.createdAt)} />
                   <Detail label="מזהה" value={l.id} mono />
                   {l.pro && <>
