@@ -86,14 +86,14 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
           <option value="">כל הנציגים</option>
           {pros.map(p => <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>)}
         </select>
-        <div style={{ display: "flex", gap: 8, flex: "2 1 240px", minWidth: 220 }}>
-          <label style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", gap: 8, flex: "1 1 100%", minWidth: 0 }}>
+          <label style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 0, overflow: "hidden" }}>
             <span style={{ fontSize: 10, fontWeight: 700, color: C.onSurfVar, letterSpacing: "0.05em" }}>מתאריך</span>
-            <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); resetPage(); }} style={{ ...adminInput, height: 38, borderRadius: 10, cursor: "pointer", direction: "ltr" }} />
+            <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); resetPage(); }} style={{ ...adminInput, width: "100%", minWidth: 0, height: 38, borderRadius: 10, cursor: "pointer", direction: "ltr" }} />
           </label>
-          <label style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 0 }}>
+          <label style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 0, overflow: "hidden" }}>
             <span style={{ fontSize: 10, fontWeight: 700, color: C.onSurfVar, letterSpacing: "0.05em" }}>עד תאריך</span>
-            <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); resetPage(); }} style={{ ...adminInput, height: 38, borderRadius: 10, cursor: "pointer", direction: "ltr" }} />
+            <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); resetPage(); }} style={{ ...adminInput, width: "100%", minWidth: 0, height: 38, borderRadius: 10, cursor: "pointer", direction: "ltr" }} />
           </label>
         </div>
       </div>
