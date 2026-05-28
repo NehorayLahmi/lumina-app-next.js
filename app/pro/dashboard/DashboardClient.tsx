@@ -26,14 +26,24 @@ export default function DashboardClient({ email, proId }: Props) {
   const loadData = useCallback(async (initial = false) => {
     const url = isAdminView ? `/api/admin/pros/${proId}/dashboard` : "/api/pro/dashboard";
     try {
-      const d = await fetch(url).then(r => r.json());
+      const r = await fetch(url);
+      if (r.status === 401) {
+        router.push("/login");
+        router.refresh();
+        return;
+      }
+      if (!r.ok) {
+        if (initial) setError("שגיאה בטעינת הנתונים");
+        return;
+      }
+      const d = await r.json();
       setPro(d);
     } catch {
       if (initial) setError("שגיאה בטעינת הנתונים");
     } finally {
       if (initial) setLoading(false);
     }
-  }, [proId, isAdminView]);
+  }, [proId, isAdminView, router]);
 
   useEffect(() => {
     loadData(true);
