@@ -13,6 +13,19 @@ export function PagesTab({ pages: initPages, pros }: { pages: LandingPage[]; pro
   const [search, setSearch]       = useState("");
   const [pages, setPages]         = useState(initPages);
   const [assigning, setAssigning] = useState<LandingPage | null>(null);
+  const [deleting, setDeleting]   = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<LandingPage | null>(null);
+
+  async function handleDelete(page: LandingPage) {
+    setDeleting(page.id);
+    try {
+      const res = await fetch(`/api/admin/landing-pages/${page.id}`, { method: "DELETE" });
+      if (res.ok) setPages(prev => prev.filter(p => p.id !== page.id));
+    } finally {
+      setDeleting(null);
+      setDeleteConfirm(null);
+    }
+  }
 
   const filtered = pages.filter((p) => {
     const q = search.toLowerCase();
@@ -85,6 +98,13 @@ export function PagesTab({ pages: initPages, pros }: { pages: LandingPage[]; pro
                 >
                   שייך נציג
                 </button>
+                <button
+                  onClick={() => setDeleteConfirm(page)}
+                  style={{ height: 36, width: 36, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 10, border: `1px solid ${C.error}44`, background: `${C.error}0e`, color: C.error, cursor: "pointer", flexShrink: 0 }}
+                  title="מחק דף"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
+                </button>
               </div>
             </div>
           </div>
@@ -96,6 +116,33 @@ export function PagesTab({ pages: initPages, pros }: { pages: LandingPage[]; pro
 
       {assigning && (
         <AssignPageModal page={assigning} pros={pros} onClose={() => setAssigning(null)} onAssigned={handleAssigned} />
+      )}
+
+      {deleteConfirm && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", padding: 24 }}>
+          <div className="pro-glass" style={{ borderRadius: 20, padding: "28px 24px", maxWidth: 380, width: "100%", textAlign: "center" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 40, color: C.error, fontVariationSettings: "'FILL' 1" }}>delete_forever</span>
+            <p style={{ fontSize: 16, fontWeight: 700, color: C.onSurface, margin: "12px 0 6px" }}>מחיקת דף נחיתה</p>
+            <p style={{ fontSize: 13, color: C.onSurfVar, marginBottom: 24 }}>
+              האם למחוק את <b style={{ color: C.onSurface }}>{deleteConfirm.mainTitle}</b>?<br />פעולה זו אינה ניתנת לביטול.
+            </p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                style={{ flex: 1, height: 40, borderRadius: 10, border: `1px solid ${C.outlineVar}44`, background: C.surfHigh, color: C.onSurfVar, fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+              >
+                ביטול
+              </button>
+              <button
+                onClick={() => handleDelete(deleteConfirm)}
+                disabled={deleting === deleteConfirm.id}
+                style={{ flex: 1, height: 40, borderRadius: 10, border: "none", background: C.error, color: "#fff", fontSize: 13, fontWeight: 700, cursor: deleting ? "not-allowed" : "pointer", opacity: deleting ? 0.7 : 1 }}
+              >
+                {deleting === deleteConfirm.id ? "מוחק..." : "מחק"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
