@@ -121,7 +121,6 @@ export function PagesTab({ pages: initPages, pros }: { pages: LandingPage[]; pro
                     style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 34, padding: "0 12px", borderRadius: 9, border: `1px solid ${C.error}44`, background: `${C.error}0e`, color: C.error, fontSize: 12, fontWeight: 700, cursor: "pointer", marginRight: "auto" }}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: 14 }}>delete</span>
-                    מחק דף
                   </button>
                 </div>
               )}

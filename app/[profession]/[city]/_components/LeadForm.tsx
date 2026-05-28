@@ -100,7 +100,7 @@ export function LeadForm({ profession, city, proName }: Props) {
             onChange={e => { setName(e.target.value); if (nameErr) setNameErr(""); }}
             required
             autoComplete="name"
-            placeholder="ישראל ישראלי"
+
             style={{ ...inputStyle, borderColor: nameErr ? "rgba(255,100,80,0.6)" : undefined }}
             onFocus={e => { e.currentTarget.style.borderColor = nameErr ? "rgba(255,100,80,0.8)" : "rgba(0,242,255,0.7)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,242,255,0.25)"; e.currentTarget.style.outline = "none"; }}
             onBlur={e => { e.currentTarget.style.borderColor = nameErr ? "rgba(255,100,80,0.6)" : "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }}
@@ -121,7 +121,7 @@ export function LeadForm({ profession, city, proName }: Props) {
             onChange={e => { setPhone(e.target.value); if (phoneErr) setPhoneErr(""); }}
             required
             autoComplete="tel"
-            placeholder="05X-XXX-XXXX"
+
             dir="ltr"
             style={{ ...inputStyle, textAlign: "left", borderColor: phoneErr ? "rgba(255,100,80,0.6)" : undefined }}
             onFocus={e => { e.currentTarget.style.borderColor = phoneErr ? "rgba(255,100,80,0.8)" : "rgba(0,242,255,0.7)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,242,255,0.25)"; e.currentTarget.style.outline = "none"; }}

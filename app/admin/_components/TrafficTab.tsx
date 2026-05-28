@@ -11,12 +11,12 @@ import type { Call, Lead, Pro, TrafficSub } from "./types";
 const PAGE_SIZE = 10;
 
 export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[]; pros: Pro[] }) {
-  const [sub, setSub]             = useState<TrafficSub>("calls");
-  const [search, setSearch]       = useState("");
+  const [sub, setSub] = useState<TrafficSub>("calls");
+  const [search, setSearch] = useState("");
   const [filterPro, setFilterPro] = useState("");
-  const [dateFrom, setDateFrom]   = useState("");
-  const [dateTo, setDateTo]       = useState("");
-  const [page, setPage]           = useState(1);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   function resetPage() { setPage(1); setExpandedId(null); }
@@ -51,11 +51,11 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
     return true;
   }), [leads, search, filterPro, dateFrom, dateTo]);
 
-  const allItems   = sub === "calls" ? filteredCalls : filteredLeads;
+  const allItems = sub === "calls" ? filteredCalls : filteredLeads;
   const totalPages = Math.max(1, Math.ceil(allItems.length / PAGE_SIZE));
-  const safePage   = Math.min(Math.max(page, 1), totalPages);
-  const pageItems  = allItems.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-  const hasFilter  = !!(search || filterPro || dateFrom || dateTo);
+  const safePage = Math.min(Math.max(page, 1), totalPages);
+  const pageItems = allItems.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const hasFilter = !!(search || filterPro || dateFrom || dateTo);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -63,7 +63,7 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
       {/* Sub-tabs row */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <div style={{ display: "flex", background: `${C.outlineVar}33`, borderRadius: 12, padding: 4, gap: 4 }}>
-          {([ ["calls", `שיחות (${filteredCalls.length})`], ["leads", `לידים (${filteredLeads.length})`] ] as [TrafficSub, string][]).map(([key, label]) => (
+          {([["calls", `שיחות (${filteredCalls.length})`], ["leads", `לידים (${filteredLeads.length})`]] as [TrafficSub, string][]).map(([key, label]) => (
             <button key={key} onClick={() => handleSubChange(key)} style={{ height: 34, padding: "0 16px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, background: sub === key ? C.surfHigh : "transparent", color: sub === key ? C.onSurface : C.onSurfVar, transition: "all 0.2s" }}>
               {label}
             </button>
@@ -86,8 +86,8 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
           <option value="">כל הנציגים</option>
           {pros.map(p => <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>)}
         </select>
-        <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); resetPage(); }} style={{ ...adminInput, flex: "1 1 120px", minWidth: 110, height: 38, borderRadius: 10, cursor: "pointer" }} />
-        <input type="date" value={dateTo}   onChange={e => { setDateTo(e.target.value);   resetPage(); }} style={{ ...adminInput, flex: "1 1 120px", minWidth: 110, height: 38, borderRadius: 10, cursor: "pointer" }} />
+        <input type="date" value={dateFrom} placeholder="מתאריך" onChange={e => { setDateFrom(e.target.value); resetPage(); }} style={{ ...adminInput, flex: "1 1 120px", minWidth: 110, height: 38, borderRadius: 10, cursor: "pointer" }} />
+        <input type="date" value={dateTo} placeholder="עד תאריך" onChange={e => { setDateTo(e.target.value); resetPage(); }} style={{ ...adminInput, flex: "1 1 120px", minWidth: 110, height: 38, borderRadius: 10, cursor: "pointer" }} />
       </div>
 
       {/* Items */}
@@ -113,17 +113,17 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
               </div>
               {open && (
                 <div style={{ padding: "12px 16px", background: `${C.surfHigh}99`, borderTop: `1px solid ${C.outlineVar}44`, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 20px" }}>
-                  <Detail label="מתקשר"  value={c.callerPhone || "—"} />
-                  <Detail label="יעד"    value={c.destinationPhone || "—"} />
-                  <Detail label="סטטוס"  value={c.status} />
-                  <Detail label="משך"    value={formatDuration(c.duration)} />
-                  <Detail label="תאריך"  value={formatDate(c.createdAt)} />
-                  <Detail label="מזהה"   value={c.id} mono />
+                  <Detail label="מתקשר" value={c.callerPhone || "—"} />
+                  <Detail label="יעד" value={c.destinationPhone || "—"} />
+                  <Detail label="סטטוס" value={c.status} />
+                  <Detail label="משך" value={formatDuration(c.duration)} />
+                  <Detail label="תאריך" value={formatDate(c.createdAt)} />
+                  <Detail label="מזהה" value={c.id} mono />
                   {c.pro && <>
-                    <Detail label="נציג"       value={`${c.pro.firstName} ${c.pro.lastName}`} />
+                    <Detail label="נציג" value={`${c.pro.firstName} ${c.pro.lastName}`} />
                     <Detail label="טלפון נציג" value={c.pro.phone} />
-                    <Detail label="עיר"        value={labelOf(CITIES, c.pro.city)} />
-                    <Detail label="מקצוע"      value={labelOf(PROFESSIONS, c.pro.profession)} />
+                    <Detail label="עיר" value={labelOf(CITIES, c.pro.city)} />
+                    <Detail label="מקצוע" value={labelOf(PROFESSIONS, c.pro.profession)} />
                   </>}
                   {c.recordingUrl && <Detail label="הקלטה" value={c.recordingUrl} />}
                 </div>
@@ -154,16 +154,16 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
               {open && (
                 <div style={{ padding: "12px 16px", background: `${C.surfHigh}99`, borderTop: `1px solid ${C.outlineVar}44`, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 20px" }}>
                   <Detail label="שם לקוח" value={l.clientName} />
-                  <Detail label="טלפון"   value={l.clientPhone} />
-                  <Detail label="עיר"     value={labelOf(CITIES, l.city)} />
-                  <Detail label="מקצוע"   value={labelOf(PROFESSIONS, l.profession)} />
-                  <Detail label="סטטוס"   value={l.status} />
-                  <Detail label="תאריך"   value={formatDate(l.createdAt)} />
-                  <Detail label="מזהה"    value={l.id} mono />
+                  <Detail label="טלפון" value={l.clientPhone} />
+                  <Detail label="עיר" value={labelOf(CITIES, l.city)} />
+                  <Detail label="מקצוע" value={labelOf(PROFESSIONS, l.profession)} />
+                  <Detail label="סטטוס" value={l.status} />
+                  <Detail label="תאריך" value={formatDate(l.createdAt)} />
+                  <Detail label="מזהה" value={l.id} mono />
                   {l.pro && <>
-                    <Detail label="נציג"       value={`${l.pro.firstName} ${l.pro.lastName}`} />
+                    <Detail label="נציג" value={`${l.pro.firstName} ${l.pro.lastName}`} />
                     <Detail label="טלפון נציג" value={l.pro.phone} />
-                    <Detail label="עיר נציג"   value={labelOf(CITIES, l.pro.city)} />
+                    <Detail label="עיר נציג" value={labelOf(CITIES, l.pro.city)} />
                     <Detail label="מקצוע נציג" value={labelOf(PROFESSIONS, l.pro.profession)} />
                   </>}
                 </div>

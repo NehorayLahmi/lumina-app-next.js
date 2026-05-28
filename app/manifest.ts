@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Lumina Leads",
     short_name: "Lumina",
-    description: "מערכת ניהול לידים — בעל מקצוע",
+    description: "מערכת ניהול לידים בעל מקצוע",
     start_url: "/pro/dashboard",
     scope: "/",
     display: "standalone",
