@@ -444,7 +444,7 @@ export default function AdminCreatePageForm() {
                 </p>
               </div>
               <div style={{ width: 44, height: 26, borderRadius: 999, background: form.isDraft ? "rgba(255,184,0,0.4)" : C.outlineVar, position: "relative", transition: "background 0.2s", flexShrink: 0 }}>
-                <div style={{ position: "absolute", top: 3, width: 20, height: 20, borderRadius: "50%", background: form.isDraft ? "#ffb800" : C.onSurfVar, transition: "all 0.2s", right: form.isDraft ? 3 : 21 }} />
+                <div style={{ position: "absolute", top: 3, width: 20, height: 20, borderRadius: "50%", background: form.isDraft ? "#ffb800" : "#6b6d75", transition: "all 0.2s", right: form.isDraft ? 3 : 21 }} />
               </div>
             </div>
           </SectionCard>
