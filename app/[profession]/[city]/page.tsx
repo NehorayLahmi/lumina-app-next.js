@@ -112,7 +112,7 @@ export async function generateMetadata({
     openGraph: {
       title: data.mainTitle,
       description: data.subTitle,
-      url: canonicalUrl,
+      url: data.isDraft ? undefined : canonicalUrl,
       images: data.heroImage ? [data.heroImage] : [],
     },
   };
