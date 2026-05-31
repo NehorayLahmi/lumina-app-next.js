@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Rubik } from "next/font/google";
 import type { LandingPageData } from "@/types/landing";
+import { SITE_URL } from "@/lib/config";
 import { LeadForm } from "./_components/LeadForm";
 import { GalleryCarousel } from "./_components/GalleryCarousel";
 import { CallButton } from "./_components/CallButton";
@@ -102,10 +103,17 @@ export async function generateMetadata({
   const { profession, city } = await params;
   const data = await fetchLandingPage(profession, city);
   if (!data) return { title: "עמוד לא נמצא" };
+  const canonicalUrl = `${SITE_URL}/${profession}/${city}`;
   return {
     title: data.mainTitle,
     description: data.subTitle,
-    openGraph: { title: data.mainTitle, description: data.subTitle, images: data.heroImage ? [data.heroImage] : [] },
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      title: data.mainTitle,
+      description: data.subTitle,
+      url: canonicalUrl,
+      images: data.heroImage ? [data.heroImage] : [],
+    },
   };
 }
 

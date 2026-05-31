@@ -1,8 +1,5 @@
 import type { MetadataRoute } from "next";
-
-
-const SITE_URL   =  (process.env.FRONTEND_URL ?? "https://leads-progect-next-js.vercel.app").replace(/\/$/, "");
- const BACKEND_URL = process.env.BACKEND_URL ?? "https://leads-progect.onrender.com";
+import { SITE_URL, BACKEND_URL } from "@/lib/config";
 
 interface PageSlug {
   city: string;
