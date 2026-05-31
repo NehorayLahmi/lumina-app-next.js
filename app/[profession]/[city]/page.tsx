@@ -107,7 +107,8 @@ export async function generateMetadata({
   return {
     title: data.mainTitle,
     description: data.subTitle,
-    alternates: { canonical: canonicalUrl },
+    ...(data.isDraft && { robots: { index: false, follow: false } }),
+    alternates: data.isDraft ? undefined : { canonical: canonicalUrl },
     openGraph: {
       title: data.mainTitle,
       description: data.subTitle,

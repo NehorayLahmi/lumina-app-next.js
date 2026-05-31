@@ -21,6 +21,7 @@ interface FormState {
   profileImage: string;
   profilePublicId: string;
   gallery: GalleryItem[];
+  isDraft: boolean;
 }
 
 // ─── Color tokens ─────────────────────────────────────────────────────────────
@@ -184,6 +185,7 @@ export default function AdminCreatePageForm() {
     heroImage: "", heroPublicId: "",
     profileImage: "", profilePublicId: "",
     gallery: [],
+    isDraft: false,
   });
 
   useEffect(() => {
@@ -281,6 +283,7 @@ export default function AdminCreatePageForm() {
           heroImage: form.heroImage || "",
           profileImage: form.profileImage || null,
           galleryImages: JSON.stringify(form.gallery),
+          isDraft: form.isDraft,
         }),
       });
       if (!res.ok) {
@@ -426,6 +429,24 @@ export default function AdminCreatePageForm() {
             </div>
             <input id="createProfileInput" type="file" accept="image/png,image/jpeg,image/webp" style={{ display: "none" }}
               onChange={e => { const f = e.target.files?.[0]; if (f) handleProfileUpload(f); e.target.value = ""; }} />
+          </SectionCard>
+
+          {/* Draft toggle */}
+          <SectionCard title="הגדרות פרסום" icon="visibility">
+            <div
+              onClick={() => setForm(f => ({ ...f, isDraft: !f.isDraft }))}
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", padding: "10px 14px", borderRadius: 12, border: `1px solid ${form.isDraft ? "rgba(255,184,0,0.35)" : C.outlineVar + "55"}`, background: form.isDraft ? "rgba(255,184,0,0.06)" : `${C.surfaceVar}55`, transition: "all 0.2s" }}
+            >
+              <div>
+                <p style={{ color: C.onSurface, fontWeight: 700, fontSize: 14, margin: 0 }}>מצב טיוטה</p>
+                <p style={{ color: `${C.onSurface}77`, fontSize: 12, margin: "2px 0 0" }}>
+                  {form.isDraft ? "הדף לא יופיע בחיפוש גוגל ולא ב-sitemap" : "הדף יהיה פעיל ויסרוק על ידי גוגל"}
+                </p>
+              </div>
+              <div style={{ width: 44, height: 26, borderRadius: 999, background: form.isDraft ? "rgba(255,184,0,0.4)" : C.outlineVar, position: "relative", transition: "background 0.2s", flexShrink: 0 }}>
+                <div style={{ position: "absolute", top: 3, width: 20, height: 20, borderRadius: "50%", background: form.isDraft ? "#ffb800" : C.onSurfVar, transition: "all 0.2s", right: form.isDraft ? 3 : 21 }} />
+              </div>
+            </div>
           </SectionCard>
 
           {/* Gallery */}

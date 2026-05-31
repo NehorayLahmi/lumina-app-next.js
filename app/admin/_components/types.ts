@@ -28,6 +28,7 @@ export interface LandingPage {
   profession: string;
   twilioNumber: string;
   mainTitle: string;
+  isDraft: boolean;
   createdAt: string;
   pro: { id: string; firstName: string; lastName: string; phone: string };
 }

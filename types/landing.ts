@@ -9,6 +9,7 @@ export interface LandingPageData {
   heroImage: string;
   profileImage?: string | null;
   galleryImages: string;
+  isDraft: boolean;
   proId: string;
   createdAt: string;
   updatedAt: string;

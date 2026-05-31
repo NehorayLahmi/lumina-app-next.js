@@ -14,8 +14,22 @@ export function PagesTab({ pages: initPages, pros }: { pages: LandingPage[]; pro
   const [pages, setPages]         = useState(initPages);
   const [assigning, setAssigning] = useState<LandingPage | null>(null);
   const [deleting, setDeleting]   = useState<string | null>(null);
+  const [toggling, setToggling]   = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<LandingPage | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  async function handleToggleDraft(page: LandingPage) {
+    setToggling(page.id);
+    try {
+      const res = await fetch(`/api/admin/landing-pages/${page.id}`, { method: "PATCH" });
+      if (res.ok) {
+        const updated = await res.json();
+        setPages(prev => prev.map(p => p.id === page.id ? { ...p, isDraft: updated.isDraft } : p));
+      }
+    } finally {
+      setToggling(null);
+    }
+  }
 
   async function handleDelete(page: LandingPage) {
     setDeleting(page.id);
@@ -74,7 +88,12 @@ export function PagesTab({ pages: initPages, pros }: { pages: LandingPage[]; pro
                 style={{ padding: "12px 16px", cursor: "pointer", borderRight: `3px solid ${C.primary}`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontFamily: "var(--font-outfit),'Outfit',sans-serif", fontSize: 14, fontWeight: 700, color: C.onSurface, margin: 0 }}>{page.mainTitle}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    <p style={{ fontFamily: "var(--font-outfit),'Outfit',sans-serif", fontSize: 14, fontWeight: 700, color: C.onSurface, margin: 0 }}>{page.mainTitle}</p>
+                    {page.isDraft && (
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999, background: "rgba(255,184,0,0.12)", border: "1px solid rgba(255,184,0,0.35)", color: "#ffb800", letterSpacing: "0.04em" }}>טיוטה</span>
+                    )}
+                  </div>
                   <p style={{ fontSize: 12, color: C.onSurfVar, margin: "3px 0 0" }}>
                     {labelOf(CITIES, page.city)} · {labelOf(PROFESSIONS, page.profession)}
                   </p>
@@ -115,6 +134,14 @@ export function PagesTab({ pages: initPages, pros }: { pages: LandingPage[]; pro
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: 14 }}>swap_horiz</span>
                     שייך נציג
+                  </button>
+                  <button
+                    onClick={e => { e.stopPropagation(); handleToggleDraft(page); }}
+                    disabled={toggling === page.id}
+                    style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 34, padding: "0 12px", borderRadius: 9, border: `1px solid rgba(255,184,0,0.35)`, background: page.isDraft ? "rgba(255,184,0,0.15)" : "rgba(255,184,0,0.06)", color: "#ffb800", fontSize: 12, fontWeight: 700, cursor: toggling === page.id ? "not-allowed" : "pointer", opacity: toggling === page.id ? 0.6 : 1 }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>{page.isDraft ? "visibility" : "visibility_off"}</span>
+                    {toggling === page.id ? "..." : page.isDraft ? "פרסם" : "הסתר"}
                   </button>
                   <button
                     onClick={e => { e.stopPropagation(); setDeleteConfirm(page); }}
