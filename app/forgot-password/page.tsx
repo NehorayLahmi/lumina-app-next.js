@@ -12,6 +12,12 @@ export default function ForgotPasswordPage() {
   async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
     setError("");
+
+    if (!email.trim()) {
+      setError("יש להזין כתובת אימייל");
+      return;
+    }
+
     setSubmitting(true);
 
     const res = await fetch("/api/auth/forgot-password", {
