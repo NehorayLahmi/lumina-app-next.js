@@ -15,6 +15,7 @@ export interface Call {
   duration: number;
   status: string;
   recordingUrl: string | null;
+  type: "PHONE" | "WHATSAPP";
   createdAt: string;
 }
 

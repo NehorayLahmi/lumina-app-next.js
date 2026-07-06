@@ -40,6 +40,7 @@ export interface Call {
   duration: number;
   status: string;
   recordingUrl: string | null;
+  type: "PHONE" | "WHATSAPP";
   proId: string | null;
   createdAt: string;
   pro: { firstName: string; lastName: string; phone: string; city: string; profession: string } | null;
