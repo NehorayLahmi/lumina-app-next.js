@@ -6,6 +6,42 @@ import { C, adminInput, adminSelect } from "./constants";
 import { Modal, ModalField } from "./Modal";
 import type { Pro } from "./types";
 
+function toSlug(raw: string) {
+  return raw.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
+
+function ComboField({ label, value, onChange, options }: {
+  label: string; value: string; onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  const [custom, setCustom] = useState(() => value !== "" && !options.some(o => o.value === value));
+  return (
+    <ModalField label={label}>
+      <select
+        style={adminSelect}
+        value={custom ? "__custom__" : value}
+        onChange={e => {
+          if (e.target.value === "__custom__") { setCustom(true); onChange(""); }
+          else { setCustom(false); onChange(e.target.value); }
+        }}
+      >
+        <option value="">בחר...</option>
+        {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+        <option value="__custom__">✏️ אחר...</option>
+      </select>
+      {custom && (
+        <input
+          style={{ ...adminInput, marginTop: 6, direction: "ltr" }}
+          dir="ltr"
+          value={value}
+          onChange={e => onChange(toSlug(e.target.value))}
+          placeholder="slug באנגלית, לדוגמה: herzliya-pituah"
+        />
+      )}
+    </ModalField>
+  );
+}
+
 export function EditProModal({ pro, onClose, onSaved }: {
   pro: Pro; onClose: () => void; onSaved: () => void;
 }) {
@@ -39,16 +75,8 @@ export function EditProModal({ pro, onClose, onSaved }: {
         </div>
         <ModalField label="טלפון"><input style={adminInput} value={form.phone} onChange={f("phone")} required /></ModalField>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <ModalField label="עיר">
-            <select style={adminSelect} value={form.city} onChange={f("city")}>
-              {CITIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-            </select>
-          </ModalField>
-          <ModalField label="מקצוע">
-            <select style={adminSelect} value={form.profession} onChange={f("profession")}>
-              {PROFESSIONS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-            </select>
-          </ModalField>
+          <ComboField label="עיר" value={form.city} onChange={v => setForm(fv => ({ ...fv, city: v }))} options={CITIES} />
+          <ComboField label="מקצוע" value={form.profession} onChange={v => setForm(fv => ({ ...fv, profession: v }))} options={PROFESSIONS} />
         </div>
         <ModalField label="מחיר לליד (₪)">
           <input style={adminInput} type="number" min="0" value={form.pricePerLead} onChange={f("pricePerLead")} />

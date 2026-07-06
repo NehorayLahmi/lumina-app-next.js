@@ -7,6 +7,15 @@ const JWT_SECRET = new TextEncoder().encode(
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // Redirect uppercase URLs to lowercase (SEO canonical normalization)
+  const lower = pathname.toLowerCase();
+  if (pathname !== lower) {
+    const url = req.nextUrl.clone();
+    url.pathname = lower;
+    return NextResponse.redirect(url, { status: 301 });
+  }
+
   const token = req.cookies.get("auth_token")?.value;
 
   if (!token) {
@@ -40,5 +49,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/pro/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };

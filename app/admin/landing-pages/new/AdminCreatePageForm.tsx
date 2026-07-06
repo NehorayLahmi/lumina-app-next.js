@@ -82,6 +82,46 @@ function StyledSelect({ label, value, onChange, options, placeholder }: {
   );
 }
 
+function toSlug(raw: string) {
+  return raw.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
+
+function SlugComboField({ label, value, onChange, options }: {
+  label: string; value: string; onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  const knownValues = options.map(o => o.value);
+  const [custom, setCustom] = useState(() => value !== "" && !knownValues.includes(value));
+
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <label style={{ display: "block", color: C.secondary, fontSize: 12, fontWeight: 600, marginBottom: 6, letterSpacing: 0.5 }}>{label}</label>
+      <select
+        value={custom ? "__custom__" : value}
+        onChange={e => {
+          if (e.target.value === "__custom__") { setCustom(true); onChange(""); }
+          else { setCustom(false); onChange(e.target.value); }
+        }}
+        style={{ ...baseInput, appearance: "none", cursor: "pointer" }}
+      >
+        <option value="">בחר...</option>
+        {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+        <option value="__custom__">✏️ אחר (הזן ידנית)...</option>
+      </select>
+      {custom && (
+        <input
+          type="text"
+          dir="ltr"
+          value={value}
+          onChange={e => onChange(toSlug(e.target.value))}
+          placeholder="הקלד slug באנגלית עם מקפים, לדוגמה: herzliya-pituah"
+          style={{ ...baseInput, marginTop: 8, direction: "ltr" }}
+        />
+      )}
+    </div>
+  );
+}
+
 function ImageUploadSlot({ label, imageUrl, uploading, onUpload, onDelete }: {
   label: string; imageUrl: string; uploading: boolean;
   onUpload: (f: File) => void; onDelete: () => void;
@@ -379,8 +419,8 @@ export default function AdminCreatePageForm() {
 
           {/* Settings — auto-filled from pro, editable if needed */}
           <SectionCard title="הגדרות עמוד" icon="settings">
-            <StyledSelect label="עיר *" value={form.city} onChange={v => setForm(f => ({ ...f, city: v }))} options={CITIES} placeholder="בחר עיר..." />
-            <StyledSelect label="מקצוע *" value={form.profession} onChange={v => setForm(f => ({ ...f, profession: v }))} options={PROFESSIONS} placeholder="בחר מקצוע..." />
+            <SlugComboField label="עיר *" value={form.city} onChange={v => setForm(f => ({ ...f, city: v }))} options={CITIES} />
+            <SlugComboField label="מקצוע *" value={form.profession} onChange={v => setForm(f => ({ ...f, profession: v }))} options={PROFESSIONS} />
           </SectionCard>
 
           {/* Phone — auto-filled from pro, editable */}

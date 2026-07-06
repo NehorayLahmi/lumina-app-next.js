@@ -26,7 +26,6 @@ const ON_GOLD = "#271900";
 
 
 const WA_GREEN = "#25D366";
-const WA_DARK  = "#128C7E";
 const ON_WA    = "#ffffff";
 
 // ── toInternational מושבת — משתמשים במספר הרגיל ישירות ──────────────────────
@@ -108,7 +107,7 @@ export async function generateMetadata({
   const { profession, city } = await params;
   const data = await fetchLandingPage(profession, city);
   if (!data) return { title: "עמוד לא נמצא" };
-  const canonicalUrl = `${SITE_URL}/${profession}/${city}`;
+  const canonicalUrl = `${SITE_URL}/${profession.toLowerCase()}/${city.toLowerCase()}`;
   return {
     title: data.mainTitle,
     description: data.subTitle,
