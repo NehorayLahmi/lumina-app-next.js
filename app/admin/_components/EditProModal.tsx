@@ -27,7 +27,7 @@ function ComboField({ label, value, onChange, options }: {
       >
         <option value="">בחר...</option>
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        <option value="__custom__">✏️ אחר...</option>
+        <option value="__custom__">אחר...</option>
       </select>
       {custom && (
         <input
@@ -35,7 +35,7 @@ function ComboField({ label, value, onChange, options }: {
           dir="ltr"
           value={value}
           onChange={e => onChange(toSlug(e.target.value))}
-          placeholder="slug באנגלית, לדוגמה: herzliya-pituah"
+          placeholder="באנגלית, לדוגמה: herzliya-pituah"
         />
       )}
     </ModalField>
