@@ -8,6 +8,9 @@ const JWT_SECRET = new TextEncoder().encode(
 // 1. הגדרת נתיבים ציבוריים שלא דורשים להתחבר
 const PUBLIC_PATHS = ["/login", "/register", "/forgot-password", "/api/auth"];
 
+// נתיבים שדורשים התחברות
+const PROTECTED_PATHS = ["/admin", "/pro"];
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -21,6 +24,15 @@ export async function middleware(req: NextRequest) {
 
   // 2. בדיקה אם הנתיב הנוכחי הוא נתיב ציבורי
   const isPublicPath = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
+
+  // רק האזורים האישיים דורשים התחברות. דפי נחיתה, טופס לידים וה-webhooks
+  // (טלגרם, קליקים) חייבים להיות פתוחים. נתיבי ה-API של admin/pro מאמתים בעצמם.
+  const isProtectedPath = PROTECTED_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`)
+  );
+  if (!isProtectedPath && !isPublicPath) {
+    return NextResponse.next();
+  }
 
   const token = req.cookies.get("auth_token")?.value;
 

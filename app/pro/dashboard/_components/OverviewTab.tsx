@@ -27,13 +27,15 @@ interface Props {
   pro: ProData;
   monthlyLeads: number;
   monthlyCalls: number;
+  billableLeads: number;
+  billableCalls: number;
   monthlyTotal: number;
   activity: ActivityItem[];
   onSwitchActivity: () => void;
   editHref: string;
 }
 
-export function OverviewTab({ pro, monthlyLeads, monthlyCalls, monthlyTotal, activity, onSwitchActivity, editHref }: Props) {
+export function OverviewTab({ pro, monthlyLeads, monthlyCalls, billableLeads, billableCalls, monthlyTotal, activity, onSwitchActivity, editHref }: Props) {
   const [range, setRange] = useState(() => presetRange(7));
   const [rangeFrom, rangeTo] = clampRange(new Date(`${range.from}T00:00:00`), new Date(`${range.to}T00:00:00`));
   const activityTrend = trendPath(countsInRange([...pro.leads, ...pro.calls], rangeFrom, rangeTo), 400, 150, 10);
@@ -55,7 +57,7 @@ export function OverviewTab({ pro, monthlyLeads, monthlyCalls, monthlyTotal, act
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span className="material-symbols-outlined" style={{ fontSize: 14, color: C.tertiary }}>calculate</span>
           <span style={{ color: C.tertiary, fontSize: 12, fontWeight: 700 }}>
-            ({monthlyLeads} + {monthlyCalls}) × ₪{pro.pricePerLead}
+            ({billableLeads} + {billableCalls}) × ₪{pro.pricePerLead} · רק עסקאות שנסגרו
           </span>
         </div>
       </section>

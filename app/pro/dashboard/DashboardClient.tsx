@@ -120,7 +120,10 @@ export default function DashboardClient({ email, proId }: Props) {
   };
   const monthlyLeads = pro.leads.filter((l) => thisMonth(l.createdAt)).length;
   const monthlyCalls = pro.calls.filter((c) => thisMonth(c.createdAt)).length;
-  const monthlyTotal = (monthlyLeads + monthlyCalls) * pro.pricePerLead;
+  // לחיוב נספרים רק לידים/שיחות שאושרו ("נסגרה עסקה") ע"י בעל המקצוע או המנהל
+  const billableLeads = pro.leads.filter((l) => l.jobClosed === true && thisMonth(l.createdAt)).length;
+  const billableCalls = pro.calls.filter((c) => c.jobClosed === true && thisMonth(c.createdAt)).length;
+  const monthlyTotal = (billableLeads + billableCalls) * pro.pricePerLead;
 
   const activity: ActivityItem[] = [
     ...pro.leads.map((l): ActivityItem => ({ kind: "lead", ...l })),
@@ -185,6 +188,8 @@ export default function DashboardClient({ email, proId }: Props) {
             pro={pro}
             monthlyLeads={monthlyLeads}
             monthlyCalls={monthlyCalls}
+            billableLeads={billableLeads}
+            billableCalls={billableCalls}
             monthlyTotal={monthlyTotal}
             activity={activity}
             onSwitchActivity={() => setTab("activity")}

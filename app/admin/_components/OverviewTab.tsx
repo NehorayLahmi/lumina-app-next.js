@@ -91,7 +91,7 @@ export function OverviewTab({ stats, leads, calls }: { stats: Stats | null; lead
         </h1>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span className="material-symbols-outlined" style={{ fontSize: 14, color: C.tertiary }}>trending_up</span>
-          <span style={{ color: C.tertiary, fontSize: 12, fontWeight: 700 }}>מכלל הנציגים</span>
+          <span style={{ color: C.tertiary, fontSize: 12, fontWeight: 700 }}>מכלל הנציגים · רק עסקאות שנסגרו</span>
         </div>
       </section>
 
