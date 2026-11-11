@@ -216,19 +216,19 @@ export function TrafficTab({ pros, onJobChange }: { pros: Pro[]; onJobChange?: (
               {open && (
                 <div style={{ padding: "12px 16px", background: `${C.surfHigh}99`, borderTop: `1px solid ${C.outlineVar}44`, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 20px" }}>
                   <Detail label="סוג" value={isWa ? "💬 WhatsApp" : "📞 שיחה"} />
-                  {!isWa && <Detail label="מתקשר" value={c.callerPhone || "—"} />}
+                  {!isWa && <Detail label="מתקשר" value={c.callerPhone || "שיחה נכנסת"} />}
                   <Detail label="יעד" value={c.destinationPhone || "—"} />
                   <Detail label="סטטוס" value={STATUS_LABELS[c.status] ?? c.status} />
-                  {!isWa && <Detail label="משך" value={formatDuration(c.duration)} />}
+                  {/* {!isWa && <Detail label="משך" value={formatDuration(c.duration)} />} */}
                   <Detail label="תאריך" value={formatDate(c.createdAt)} />
-                  <Detail label="מזהה" value={c.id} mono />
+                  {/* <Detail label="מזהה" value={c.id} mono /> */}
                   {c.pro && <>
                     <Detail label="נציג" value={`${c.pro.firstName} ${c.pro.lastName}`} />
                     <Detail label="טלפון נציג" value={c.pro.phone} />
                     <Detail label="עיר" value={labelOf(CITIES, c.pro.city)} />
                     <Detail label="מקצוע" value={labelOf(PROFESSIONS, c.pro.profession)} />
                   </>}
-                  {c.recordingUrl && <Detail label="הקלטה" value={c.recordingUrl} />}
+                  {/* {c.recordingUrl && <Detail label="הקלטה" value={c.recordingUrl} />} */}
                   {c.jobClosedAt && <Detail label="עסקה עודכנה בתאריך" value={formatDate(c.jobClosedAt)} />}
                   <JobRow kind="call" id={c.id} jobClosed={c.jobClosed} onChange={setItemJob} />
                 </div>
@@ -269,7 +269,7 @@ export function TrafficTab({ pros, onJobChange }: { pros: Pro[]; onJobChange?: (
                   {l.jobClosedAt && <Detail label="עסקה עודכנה בתאריך" value={formatDate(l.jobClosedAt)} />}
                   <JobRow kind="lead" id={l.id} jobClosed={l.jobClosed} onChange={setItemJob} />
                   <Detail label="תאריך" value={formatDate(l.createdAt)} />
-                  <Detail label="מזהה" value={l.id} mono />
+                  {/* <Detail label="מזהה" value={l.id} mono /> */}
                   {l.pro && <>
                     <Detail label="נציג" value={`${l.pro.firstName} ${l.pro.lastName}`} />
                     <Detail label="טלפון נציג" value={l.pro.phone} />
