@@ -47,8 +47,9 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // 4. אם המשתמש כבר מחובר (יש טוקן) ומנסה להיכנס ל-login, נעביר אותו לאזור האישי
-  if (isPublicPath && token) {
+  // 4. אם המשתמש כבר מחובר (יש טוקן) ומנסה להיכנס ל-login, נעביר אותו לאזור האישי.
+  //    רק לדפים — לא לנתיבי /api/auth, אחרת גם בקשת ההתנתקות מופנית ל-/admin ולא מתבצעת.
+  if (isPublicPath && token && !pathname.startsWith("/api/")) {
     try {
       const { payload } = await jwtVerify(token, JWT_SECRET);
       const role = payload.role as string;

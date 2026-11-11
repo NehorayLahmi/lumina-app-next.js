@@ -40,13 +40,28 @@ export default function AdminClient() {
     if (initial) setLoading(false);
   }, []);
 
+  // רענון קל של הסטטיסטיקות בלבד (כולל "הכנסה כוללת") — כדי שאישור עסקה מטלגרם יופיע תוך שניות
+  const loadStats = useCallback(async () => {
+    try {
+      const r = await fetch("/api/admin/stats", { cache: "no-store" });
+      if (r.ok) setStats(await r.json());
+    } catch { /* ננסה שוב בסבב הבא */ }
+  }, []);
+
   useEffect(() => {
     loadAll(true);
     const interval = setInterval(() => loadAll(), 30_000);
+    const statsInterval = setInterval(() => {
+      if (document.visibilityState === "visible") loadStats();
+    }, 10_000);
     const onVisible = () => { if (document.visibilityState === "visible") loadAll(); };
     document.addEventListener("visibilitychange", onVisible);
-    return () => { clearInterval(interval); document.removeEventListener("visibilitychange", onVisible); };
-  }, [loadAll]);
+    return () => {
+      clearInterval(interval);
+      clearInterval(statsInterval);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [loadAll, loadStats]);
 
   const TABS: { key: Tab; icon: string; label: string }[] = [
     { key: "overview", icon: "dashboard", label: "סקירה" },
@@ -94,7 +109,7 @@ export default function AdminClient() {
         {tab === "overview" && <OverviewTab stats={stats} leads={leads} calls={calls} />}
         {tab === "pros"     && <ProsTab pros={pros} onRefresh={loadAll} />}
         {tab === "pages"    && <PagesTab pages={pages} pros={pros} />}
-        {tab === "traffic"  && <TrafficTab pros={pros} />}
+        {tab === "traffic"  && <TrafficTab pros={pros} onJobChange={loadStats} />}
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ import type { Call, Lead, Pro, TrafficSub, PaginatedResponse } from "./types";
 const PAGE_SIZE = 10;
 const SEARCH_DEBOUNCE_MS = 400;
 
-export function TrafficTab({ pros }: { pros: Pro[] }) {
+export function TrafficTab({ pros, onJobChange }: { pros: Pro[]; onJobChange?: () => void }) {
   const [sub, setSub] = useState<TrafficSub>("calls");
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -36,6 +36,8 @@ export function TrafficTab({ pros }: { pros: Pro[] }) {
   function setItemJob(id: string, jobClosed: boolean | null) {
     const jobClosedAt = jobClosed === null ? null : new Date().toISOString();
     setItems(prev => prev.map(it => it.id === id ? { ...it, jobClosed, jobClosedAt } : it));
+    // JobStatusToggle מעדכן אופטימית לפני שהשרת סיים לשמור — לכן מרעננים את היתרה אחרי שנייה
+    setTimeout(() => onJobChange?.(), 1000);
   }
 
   async function confirmDeleteLead() {

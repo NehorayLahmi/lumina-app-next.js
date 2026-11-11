@@ -47,7 +47,10 @@ export default function DashboardClient({ email, proId }: Props) {
 
   useEffect(() => {
     loadData(true);
-    const interval = setInterval(() => loadData(), 30_000);
+    // רענון כל 10 שניות כשהדף פתוח — כדי שאישור עסקה מטלגרם יעדכן את היתרה תוך שניות
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") loadData();
+    }, 10_000);
     const onVisible = () => { if (document.visibilityState === "visible") loadData(); };
     document.addEventListener("visibilitychange", onVisible);
     return () => { clearInterval(interval); document.removeEventListener("visibilitychange", onVisible); };
