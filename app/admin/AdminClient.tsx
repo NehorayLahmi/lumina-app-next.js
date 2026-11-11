@@ -91,10 +91,10 @@ export default function AdminClient() {
 
       {/* Content */}
       <div style={{ padding: "24px 20px 40px", maxWidth: 900, margin: "0 auto" }}>
-        {tab === "overview" && <OverviewTab stats={stats} />}
+        {tab === "overview" && <OverviewTab stats={stats} leads={leads} calls={calls} />}
         {tab === "pros"     && <ProsTab pros={pros} onRefresh={loadAll} />}
         {tab === "pages"    && <PagesTab pages={pages} pros={pros} />}
-        {tab === "traffic"  && <TrafficTab calls={calls} leads={leads} pros={pros} />}
+        {tab === "traffic"  && <TrafficTab pros={pros} />}
       </div>
     </div>
   );

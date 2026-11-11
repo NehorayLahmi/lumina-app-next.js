@@ -1,17 +1,21 @@
 "use client";
 
 import type React from "react";
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { CITIES, PROFESSIONS } from "@/lib/options";
 import { C, adminInput, adminSelect, STATUS_LABELS } from "./constants";
 import { labelOf, formatDate, formatDuration } from "./helpers";
 import { Badge } from "./Badge";
-import type { Call, Lead, Pro, TrafficSub } from "./types";
+import { DeleteConfirm } from "./DeleteConfirm";
+import { JobStatusBadge, JobStatusToggle, type JobKind } from "@/components/JobStatusBadge";
+import type { Call, Lead, Pro, TrafficSub, PaginatedResponse } from "./types";
 
 const PAGE_SIZE = 10;
+const SEARCH_DEBOUNCE_MS = 400;
 
-export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[]; pros: Pro[] }) {
+export function TrafficTab({ pros }: { pros: Pro[] }) {
   const [sub, setSub] = useState<TrafficSub>("calls");
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [filterPro, setFilterPro] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -19,42 +23,79 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
   const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  function resetPage() { setPage(1); setExpandedId(null); }
+  const [items, setItems] = useState<(Call | Lead)[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const [deleteTarget, setDeleteTarget] = useState<Lead | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  function setItemJob(id: string, jobClosed: boolean | null) {
+    const jobClosedAt = jobClosed === null ? null : new Date().toISOString();
+    setItems(prev => prev.map(it => it.id === id ? { ...it, jobClosed, jobClosedAt } : it));
+  }
+
+  async function confirmDeleteLead() {
+    if (!deleteTarget) return;
+    setDeleteBusy(true);
+    setDeleteError("");
+    try {
+      const res = await fetch(`/api/admin/leads/${deleteTarget.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        setDeleteError(d.message ?? "שגיאה במחיקת הליד");
+        return;
+      }
+      setDeleteTarget(null);
+      setExpandedId(null);
+      // אם נמחק הפריט האחרון בעמוד - חוזרים עמוד אחורה, אחרת טוענים מחדש
+      if (items.length === 1 && page > 1) setPage(p => p - 1);
+      else setReloadKey(k => k + 1);
+    } catch {
+      setDeleteError("שגיאת חיבור לשרת");
+    } finally {
+      setDeleteBusy(false);
+    }
+  }
+
+  // מבטל הקלדה-לכל-תו: מחכה שהמשתמש יפסיק להקליד לפני שליחת החיפוש לשרת.
+  useEffect(() => {
+    const t = setTimeout(() => { setSearch(searchInput); setPage(1); }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    const params = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE) });
+    if (search) params.set("search", search);
+    if (filterPro) params.set("proId", filterPro);
+    if (dateFrom) params.set("dateFrom", dateFrom);
+    if (dateTo) params.set("dateTo", dateTo);
+
+    fetch(`/api/admin/${sub}?${params.toString()}`)
+      .then(r => r.json())
+      .then((d: PaginatedResponse<Call | Lead>) => {
+        if (cancelled) return;
+        setItems(Array.isArray(d.items) ? d.items : []);
+        setTotal(d.total ?? 0);
+        setTotalPages(Math.max(1, d.totalPages ?? 1));
+      })
+      .catch(() => { if (!cancelled) { setItems([]); setTotal(0); setTotalPages(1); } })
+      .finally(() => { if (!cancelled) setLoading(false); });
+
+    return () => { cancelled = true; };
+  }, [sub, page, search, filterPro, dateFrom, dateTo, reloadKey]);
 
   function handleSubChange(s: TrafficSub) { setSub(s); setPage(1); setExpandedId(null); }
 
   function resetFilters() {
-    setSearch(""); setFilterPro(""); setDateFrom(""); setDateTo(""); setPage(1); setExpandedId(null);
+    setSearchInput(""); setSearch(""); setFilterPro(""); setDateFrom(""); setDateTo(""); setPage(1); setExpandedId(null);
   }
 
-  const filteredCalls = useMemo(() => calls.filter(c => {
-    if (search) {
-      const q = search.toLowerCase();
-      const name = c.pro ? `${c.pro.firstName} ${c.pro.lastName}`.toLowerCase() : "";
-      if (!c.callerPhone.includes(q) && !c.destinationPhone.includes(q) && !name.includes(q)) return false;
-    }
-    if (filterPro && c.proId !== filterPro) return false;
-    if (dateFrom && c.createdAt.slice(0, 10) < dateFrom) return false;
-    if (dateTo && c.createdAt.slice(0, 10) > dateTo) return false;
-    return true;
-  }), [calls, search, filterPro, dateFrom, dateTo]);
-
-  const filteredLeads = useMemo(() => leads.filter(l => {
-    if (search) {
-      const q = search.toLowerCase();
-      const name = l.pro ? `${l.pro.firstName} ${l.pro.lastName}`.toLowerCase() : "";
-      if (!l.clientName.toLowerCase().includes(q) && !l.clientPhone.includes(q) && !name.includes(q)) return false;
-    }
-    if (filterPro && l.proId !== filterPro) return false;
-    if (dateFrom && l.createdAt.slice(0, 10) < dateFrom) return false;
-    if (dateTo && l.createdAt.slice(0, 10) > dateTo) return false;
-    return true;
-  }), [leads, search, filterPro, dateFrom, dateTo]);
-
-  const allItems = sub === "calls" ? filteredCalls : filteredLeads;
-  const totalPages = Math.max(1, Math.ceil(allItems.length / PAGE_SIZE));
-  const safePage = Math.min(Math.max(page, 1), totalPages);
-  const pageItems = allItems.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
   const hasFilter = !!(search || filterPro || dateFrom || dateTo);
 
   return (
@@ -63,7 +104,7 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
       {/* Sub-tabs row */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <div style={{ display: "flex", background: `${C.outlineVar}33`, borderRadius: 12, padding: 4, gap: 4 }}>
-          {([["calls", `שיחות (${filteredCalls.length})`], ["leads", `לידים (${filteredLeads.length})`]] as [TrafficSub, string][]).map(([key, label]) => (
+          {([["calls", "שיחות"], ["leads", "לידים"]] as [TrafficSub, string][]).map(([key, label]) => (
             <button key={key} onClick={() => handleSubChange(key)} style={{ height: 34, padding: "0 16px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, background: sub === key ? C.surfHigh : "transparent", color: sub === key ? C.onSurface : C.onSurfVar, transition: "all 0.2s" }}>
               {label}
             </button>
@@ -80,49 +121,26 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         <div style={{ position: "relative", flex: "2 1 150px", minWidth: 130 }}>
           <span className="material-symbols-outlined" style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", fontSize: 16, color: C.onSurfVar, pointerEvents: "none" }}>search</span>
-          <input value={search} onChange={e => { setSearch(e.target.value); resetPage(); }} placeholder="חיפוש..." style={{ ...adminInput, paddingRight: "2.2rem", height: 38, borderRadius: 10 }} />
+          <input value={searchInput} onChange={e => setSearchInput(e.target.value)} placeholder="חיפוש..." style={{ ...adminInput, paddingRight: "2.2rem", height: 38, borderRadius: 10 }} />
         </div>
-        <select value={filterPro} onChange={e => { setFilterPro(e.target.value); resetPage(); }} style={{ ...adminSelect, flex: "2 1 150px", minWidth: 130, height: 38, borderRadius: 10 }}>
+        <select value={filterPro} onChange={e => { setFilterPro(e.target.value); setPage(1); }} style={{ ...adminSelect, flex: "2 1 150px", minWidth: 130, height: 38, borderRadius: 10 }}>
           <option value="">כל הנציגים</option>
           {pros.map(p => <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>)}
         </select>
 <div style={{ display: "flex", gap: 8, flex: "1 1 100%", minWidth: 0 }}>
   <label style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 0, overflow: "hidden" }}>
     <span style={{ fontSize: 10, fontWeight: 700, color: C.onSurfVar, letterSpacing: "0.05em" }}>מתאריך</span>
-    <input 
-      type="date" 
-      value={dateFrom} 
-      onChange={e => { setDateFrom(e.target.value); resetPage(); }} 
-      style={{ 
-        ...adminInput, 
-        width: "100%", 
-        minWidth: 0, 
-        height: 38, 
-        borderRadius: 10, 
-        cursor: "pointer", 
-        direction: "ltr",
-        // תיקונים לאייפון:
-        colorScheme: "dark", 
-        WebkitAppearance: "none", 
-        appearance: "none",
-        padding: "0 10px",
-        boxSizing: "border-box"
-      }} 
-    />
-  </label>
-  <label style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 0, overflow: "hidden" }}>
-    <span style={{ fontSize: 10, fontWeight: 700, color: C.onSurfVar, letterSpacing: "0.05em" }}>עד תאריך</span>
-    <input 
-      type="date" 
-      value={dateTo} 
-      onChange={e => { setDateTo(e.target.value); resetPage(); }} 
-      style={{ 
-        ...adminInput, 
-        width: "100%", 
-        minWidth: 0, 
-        height: 38, 
-        borderRadius: 10, 
-        cursor: "pointer", 
+    <input
+      type="date"
+      value={dateFrom}
+      onChange={e => { setDateFrom(e.target.value); setPage(1); }}
+      style={{
+        ...adminInput,
+        width: "100%",
+        minWidth: 0,
+        height: 38,
+        borderRadius: 10,
+        cursor: "pointer",
         direction: "ltr",
         // תיקונים לאייפון:
         colorScheme: "dark",
@@ -130,15 +148,40 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
         appearance: "none",
         padding: "0 10px",
         boxSizing: "border-box"
-      }} 
+      }}
+    />
+  </label>
+  <label style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 0, overflow: "hidden" }}>
+    <span style={{ fontSize: 10, fontWeight: 700, color: C.onSurfVar, letterSpacing: "0.05em" }}>עד תאריך</span>
+    <input
+      type="date"
+      value={dateTo}
+      onChange={e => { setDateTo(e.target.value); setPage(1); }}
+      style={{
+        ...adminInput,
+        width: "100%",
+        minWidth: 0,
+        height: 38,
+        borderRadius: 10,
+        cursor: "pointer",
+        direction: "ltr",
+        // תיקונים לאייפון:
+        colorScheme: "dark",
+        WebkitAppearance: "none",
+        appearance: "none",
+        padding: "0 10px",
+        boxSizing: "border-box"
+      }}
     />
   </label>
 </div>
       </div>
 
+      <p style={{ fontSize: 12, color: C.onSurfVar, margin: 0 }}>{total.toLocaleString()} תוצאות</p>
+
       {/* Items */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        {sub === "calls" && (pageItems as Call[]).map(c => {
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, opacity: loading ? 0.5 : 1, transition: "opacity 0.15s" }}>
+        {sub === "calls" && (items as Call[]).map(c => {
           const open = expandedId === c.id;
           const isWa = c.type === "WHATSAPP";
           const accentColor = isWa ? "#25D366" : C.tertiary;
@@ -157,7 +200,10 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
-                    <Badge status={c.status} />
+                    <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                      <JobStatusBadge jobClosed={c.jobClosed} />
+                      <Badge status={c.status} />
+                    </div>
                     <p style={{ fontSize: 11, color: c.pro ? C.primary : C.onSurfVar, margin: 0 }}>
                       {c.pro ? `${c.pro.firstName} ${c.pro.lastName}` : "—"}
                     </p>
@@ -181,13 +227,15 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
                     <Detail label="מקצוע" value={labelOf(PROFESSIONS, c.pro.profession)} />
                   </>}
                   {c.recordingUrl && <Detail label="הקלטה" value={c.recordingUrl} />}
+                  {c.jobClosedAt && <Detail label="עסקה עודכנה בתאריך" value={formatDate(c.jobClosedAt)} />}
+                  <JobRow kind="call" id={c.id} jobClosed={c.jobClosed} onChange={setItemJob} />
                 </div>
               )}
             </div>
           );
         })}
 
-        {sub === "leads" && (pageItems as Lead[]).map(l => {
+        {sub === "leads" && (items as Lead[]).map(l => {
           const open = expandedId === l.id;
           return (
             <div key={l.id} style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${open ? C.secondary + "66" : C.outlineVar + "33"}`, transition: "border-color 0.2s" }}>
@@ -198,7 +246,10 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
-                    <Badge status={l.status} />
+                    <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                      <JobStatusBadge jobClosed={l.jobClosed} />
+                      <Badge status={l.status} />
+                    </div>
                     <p style={{ fontSize: 11, color: l.pro ? C.primary : C.onSurfVar, margin: 0 }}>
                       {l.pro ? `${l.pro.firstName} ${l.pro.lastName}` : "—"}
                     </p>
@@ -213,6 +264,8 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
                   <Detail label="עיר" value={labelOf(CITIES, l.city)} />
                   <Detail label="מקצוע" value={labelOf(PROFESSIONS, l.profession)} />
                   <Detail label="סטטוס" value={STATUS_LABELS[l.status] ?? l.status} />
+                  {l.jobClosedAt && <Detail label="עסקה עודכנה בתאריך" value={formatDate(l.jobClosedAt)} />}
+                  <JobRow kind="lead" id={l.id} jobClosed={l.jobClosed} onChange={setItemJob} />
                   <Detail label="תאריך" value={formatDate(l.createdAt)} />
                   <Detail label="מזהה" value={l.id} mono />
                   {l.pro && <>
@@ -221,13 +274,22 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
                     <Detail label="עיר נציג" value={labelOf(CITIES, l.pro.city)} />
                     <Detail label="מקצוע נציג" value={labelOf(PROFESSIONS, l.pro.profession)} />
                   </>}
+                  <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "flex-end" }}>
+                    <button
+                      onClick={() => { setDeleteError(""); setDeleteTarget(l); }}
+                      style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 32, padding: "0 14px", borderRadius: 8, border: `1px solid ${C.error}55`, background: `${C.error}11`, color: C.error, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
+                      מחק ליד
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           );
         })}
 
-        {pageItems.length === 0 && (
+        {!loading && items.length === 0 && (
           <p style={{ textAlign: "center", color: C.onSurfVar, padding: "32px 0" }}>לא נמצאו רשומות</p>
         )}
       </div>
@@ -235,11 +297,34 @@ export function TrafficTab({ calls, leads, pros }: { calls: Call[]; leads: Lead[
       {/* Pagination */}
       {totalPages > 1 && (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, paddingTop: 4 }}>
-          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={safePage === 1} style={pagerStyle(safePage === 1)}>הקודם</button>
-          <span style={{ fontSize: 13, color: C.onSurfVar }}>{safePage} / {totalPages}</span>
-          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={safePage === totalPages} style={pagerStyle(safePage === totalPages)}>הבא</button>
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={pagerStyle(page === 1)}>הקודם</button>
+          <span style={{ fontSize: 13, color: C.onSurfVar }}>{page} / {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={pagerStyle(page === totalPages)}>הבא</button>
         </div>
       )}
+
+      {deleteTarget && (
+        <DeleteConfirm
+          title="מחיקת ליד"
+          name={`${deleteTarget.clientName} (${deleteTarget.clientPhone})`}
+          onConfirm={confirmDeleteLead}
+          onCancel={() => setDeleteTarget(null)}
+          busy={deleteBusy}
+          errorMsg={deleteError}
+        />
+      )}
+    </div>
+  );
+}
+
+function JobRow({ kind, id, jobClosed, onChange }: {
+  kind: JobKind; id: string; jobClosed: boolean | null;
+  onChange: (id: string, jobClosed: boolean | null) => void;
+}) {
+  return (
+    <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", paddingTop: 8, borderTop: `1px solid ${C.outlineVar}44` }}>
+      <span style={{ fontSize: 11, fontWeight: 700, color: C.onSurfVar }}>נסגרה עסקה?</span>
+      <JobStatusToggle kind={kind} id={id} jobClosed={jobClosed} apiBase="/api/admin/job-status" onChange={v => onChange(id, v)} />
     </div>
   );
 }

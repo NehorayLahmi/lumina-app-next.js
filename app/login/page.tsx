@@ -323,7 +323,7 @@ function LoginForm() {
                   color: C.tertiary, fontSize: 14,
                 }}
               >
-                ההרשמה הושלמה בהצלחה — כעת ניתן להתחבר
+                ההרשמה הושלמה בהצלחה כעת ניתן להתחבר
               </div>
             )}
             {error && (

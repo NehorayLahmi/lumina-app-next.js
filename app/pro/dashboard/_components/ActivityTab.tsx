@@ -1,13 +1,27 @@
 "use client";
 
+import type React from "react";
+import { useState } from "react";
 import { CITIES, PROFESSIONS } from "@/lib/options";
 import { C } from "./constants";
 import { labelOf, formatDate, formatDuration } from "./helpers";
 import { StatusBadge } from "./StatusBadge";
+import { JobStatusToggle, type JobKind } from "@/components/JobStatusBadge";
 import { AudioPlayer } from "./AudioPlayer";
 import type { ActivityItem, Call, Lead } from "./types";
 
-export function ActivityTab({ activity }: { activity: ActivityItem[] }) {
+const PAGE_SIZE = 10;
+
+export function ActivityTab({ activity, jobApiBase, onJobChange }: {
+  activity: ActivityItem[];
+  jobApiBase: string;
+  onJobChange: (kind: JobKind, id: string, jobClosed: boolean | null) => void;
+}) {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(activity.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageItems = activity.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   return (
     <div>
       <h3 style={{ fontFamily: "var(--font-outfit), 'Outfit', sans-serif", fontSize: 18, fontWeight: 700, color: C.onSurface, marginBottom: 16 }}>
@@ -15,7 +29,7 @@ export function ActivityTab({ activity }: { activity: ActivityItem[] }) {
         <span style={{ fontSize: 12, fontWeight: 400, color: C.onSurfVar, marginRight: 8 }}>({activity.length} רשומות)</span>
       </h3>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {activity.map((item) => {
+        {pageItems.map((item) => {
           const isCall = item.kind === "call";
           const isWa = isCall && (item as Call).type === "WHATSAPP";
           const borderColor = isWa ? "#25D366" : isCall ? C.tertiary : C.secondary;
@@ -36,7 +50,9 @@ export function ActivityTab({ activity }: { activity: ActivityItem[] }) {
                     }
                   </span>
                 </div>
-                <StatusBadge status={item.status} />
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  <StatusBadge status={item.status} />
+                </div>
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 11, color: C.onSurfVar }}>{formatDate(item.createdAt)}</span>
@@ -49,6 +65,16 @@ export function ActivityTab({ activity }: { activity: ActivityItem[] }) {
                     </span>
                 }
               </div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.outlineVar}66` }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: C.onSurfVar }}>נסגרה עסקה?</span>
+                <JobStatusToggle
+                  kind={item.kind}
+                  id={item.id}
+                  jobClosed={item.jobClosed}
+                  apiBase={jobApiBase}
+                  onChange={(v) => onJobChange(item.kind, item.id, v)}
+                />
+              </div>
             </div>
           );
         })}
@@ -56,6 +82,25 @@ export function ActivityTab({ activity }: { activity: ActivityItem[] }) {
           <p style={{ textAlign: "center", color: C.onSurfVar, padding: "40px 0" }}>אין פעילות עדיין</p>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, paddingTop: 16 }}>
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={safePage === 1} style={pagerStyle(safePage === 1)}>הקודם</button>
+          <span style={{ fontSize: 13, color: C.onSurfVar }}>{safePage} / {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={safePage === totalPages} style={pagerStyle(safePage === totalPages)}>הבא</button>
+        </div>
+      )}
     </div>
   );
+}
+
+function pagerStyle(disabled: boolean): React.CSSProperties {
+  return {
+    height: 32, padding: "0 16px", borderRadius: 8, border: `1px solid ${C.outlineVar}`,
+    cursor: disabled ? "default" : "pointer", fontSize: 12, fontWeight: 600,
+    color: disabled ? C.onSurfVar : C.onSurface,
+    background: disabled ? "transparent" : C.surfHigh,
+    opacity: disabled ? 0.4 : 1,
+    transition: "opacity 0.2s",
+  };
 }

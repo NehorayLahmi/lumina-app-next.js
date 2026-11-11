@@ -1,16 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { C } from "./constants";
-import type { Stats } from "./types";
+import { C, adminInput } from "./constants";
+import { countsInRange, labelsInRange, trendPath, presetRange, clampRange } from "@/lib/trendChart";
+import type { Stats, Lead, Call } from "./types";
 
-export function OverviewTab({ stats }: { stats: Stats | null }) {
+const RANGE_PRESETS = [
+  { label: "7 ימים", days: 7 },
+  { label: "30 יום", days: 30 },
+  { label: "90 יום", days: 90 },
+];
+
+export function OverviewTab({ stats, leads, calls }: { stats: Stats | null; leads: Lead[]; calls: Call[] }) {
   const [adminNotifyAll, setAdminNotifyAll] = useState<boolean | null>(null);
   const [saving, setSaving]                 = useState(false);
   const [broadcastMsg, setBroadcastMsg]     = useState("");
   const [broadcastOpen, setBroadcastOpen]   = useState(false);
   const [broadcastBusy, setBroadcastBusy]   = useState(false);
   const [broadcastResult, setBroadcastResult] = useState("");
+  const [range, setRange] = useState(() => presetRange(7));
 
   useEffect(() => {
     fetch("/api/admin/settings")
@@ -55,6 +63,15 @@ export function OverviewTab({ stats }: { stats: Stats | null }) {
 
   if (!stats) return null;
 
+  const [rangeFrom, rangeTo] = clampRange(new Date(`${range.from}T00:00:00`), new Date(`${range.to}T00:00:00`));
+  const rangeLabels = labelsInRange(rangeFrom, rangeTo);
+  const leadCounts = countsInRange(leads, rangeFrom, rangeTo);
+  const callCounts = countsInRange(calls, rangeFrom, rangeTo);
+  const leadTrend = trendPath(leadCounts, 400, 100, 10);
+  const callTrend = trendPath(callCounts, 400, 100, 10);
+  const leadsInRange = leadCounts.reduce((a, b) => a + b, 0);
+  const callsInRange = callCounts.reduce((a, b) => a + b, 0);
+
   const cards = [
     { icon: "description", label: 'סה"כ לידים', value: stats.totalLeads.toLocaleString(), color: C.primary },
     { icon: "call", label: 'סה"כ שיחות', value: stats.totalCalls.toLocaleString(), color: C.tertiary },
@@ -96,7 +113,7 @@ export function OverviewTab({ stats }: { stats: Stats | null }) {
           <div>
             <p style={{ fontSize: 13, fontWeight: 600, color: C.onSurface, margin: 0 }}>קבלת עדכונים מכל נציג</p>
             <p style={{ fontSize: 11, color: adminNotifyAll ? C.tertiary : C.onSurfVar, margin: 0 }}>
-              {adminNotifyAll === null ? "טוען..." : adminNotifyAll ? "פעיל — מקבל עדכונים מכולם" : "כבוי — כל נציג מקבל רק אליו"}
+              {adminNotifyAll === null ? "טוען..." : adminNotifyAll ? "פעיל מקבל עדכונים מכולם" : "כבוי כל נציג מקבל רק אליו"}
             </p>
           </div>
         </div>
@@ -148,26 +165,53 @@ export function OverviewTab({ stats }: { stats: Stats | null }) {
       {/* Chart */}
       <section className="pro-glass" style={{ borderRadius: 32, padding: "20px 20px 12px" }}>
         <h3 style={{ fontFamily: "var(--font-outfit),'Outfit',sans-serif", fontSize: 16, fontWeight: 700, color: C.onSurface, marginBottom: 12 }}>מגמות תנועה</h3>
-        <svg width="100%" height="120" viewBox="0 0 400 100" style={{ overflow: "visible" }}>
+
+        {/* Range controls */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+          <div style={{ display: "flex", background: `${C.outlineVar}33`, borderRadius: 10, padding: 3, gap: 3 }}>
+            {RANGE_PRESETS.map((p) => {
+              const active = range.from === presetRange(p.days).from && range.to === presetRange(p.days).to;
+              return (
+                <button
+                  key={p.days}
+                  onClick={() => setRange(presetRange(p.days))}
+                  style={{ height: 28, padding: "0 12px", borderRadius: 7, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 700, background: active ? C.surfHigh : "transparent", color: active ? C.onSurface : C.onSurfVar, transition: "all 0.2s" }}
+                >
+                  {p.label}
+                </button>
+              );
+            })}
+          </div>
+          <input type="date" value={range.from} max={range.to} onChange={(e) => setRange((r) => ({ ...r, from: e.target.value }))} style={{ ...adminInput, width: "auto", height: 28, borderRadius: 7, padding: "0 8px", fontSize: 11, direction: "ltr", colorScheme: "dark" }} />
+          <span style={{ color: C.onSurfVar, fontSize: 11, alignSelf: "center" }}>—</span>
+          <input type="date" value={range.to} min={range.from} onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))} style={{ ...adminInput, width: "auto", height: 28, borderRadius: 7, padding: "0 8px", fontSize: 11, direction: "ltr", colorScheme: "dark" }} />
+        </div>
+
+        <svg width="100%" height="120" viewBox="0 0 400 100" style={{ overflow: "visible", direction: "ltr" }}>
           <defs>
             <linearGradient id="ag" x1="0" x2="0" y1="0" y2="1">
               <stop offset="0%" stopColor={C.primary} stopOpacity="0.3" />
               <stop offset="100%" stopColor={C.primary} stopOpacity="0" />
             </linearGradient>
           </defs>
-          <path d="M0,80 Q50,60 100,40 T200,50 T300,20 T400,35 L400,100 L0,100 Z" fill="url(#ag)" />
-          <path d="M0,80 Q50,60 100,40 T200,50 T300,20 T400,35" fill="none" stroke={C.primary} strokeWidth="2.5" strokeLinecap="round" />
-          <path d="M0,90 Q80,70 160,60 T320,40 T400,55 L400,100 L0,100 Z" fill={`${C.tertiary}18`} />
-          <path d="M0,90 Q80,70 160,60 T320,40 T400,55" fill="none" stroke={C.tertiary} strokeWidth="1.5" strokeLinecap="round" strokeDasharray="4 3" />
+          <path d={leadTrend.area} fill="url(#ag)" />
+          <path d={leadTrend.line} fill="none" stroke={C.primary} strokeWidth="2.5" strokeLinecap="round" />
+          <path d={callTrend.area} fill={`${C.tertiary}18`} />
+          <path d={callTrend.line} fill="none" stroke={C.tertiary} strokeWidth="1.5" strokeLinecap="round" strokeDasharray="4 3" />
         </svg>
-        <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, direction: "ltr" }}>
+          {rangeLabels.map((d, i) => (
+            <span key={i} style={{ fontSize: 9, fontWeight: 700, color: "rgba(205,195,206,0.4)" }}>{d}</span>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 16, marginTop: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <div style={{ width: 8, height: 2, background: C.primary, borderRadius: 99 }} />
-            <span style={{ fontSize: 10, color: C.onSurfVar }}>לידים</span>
+            <span style={{ fontSize: 10, color: C.onSurfVar }}>לידים ({leadsInRange})</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <div style={{ width: 8, height: 2, background: C.tertiary, borderRadius: 99 }} />
-            <span style={{ fontSize: 10, color: C.onSurfVar }}>שיחות</span>
+            <span style={{ fontSize: 10, color: C.onSurfVar }}>שיחות ({callsInRange})</span>
           </div>
         </div>
       </section>

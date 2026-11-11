@@ -17,6 +17,34 @@ interface TelegramUpdate {
     chat?: { id?: number };
     text?: string;
   };
+  callback_query?: {
+    id: string;
+    data?: string;
+    message?: { message_id?: number; chat?: { id?: number } };
+  };
+}
+
+// לחיצה על כפתור "נסגרה עבודה / לא נסגרה" — מועבר לשרת שמעדכן את ה-DB ואת ההודעה
+async function forwardCallbackQuery(cq: NonNullable<TelegramUpdate["callback_query"]>) {
+  const chatId = cq.message?.chat?.id;
+  if (!cq.data || !chatId) return;
+  try {
+    await fetch(`${BACKEND_URL}/api/webhook/telegram-callback`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(process.env.INTERNAL_API_SECRET ? { "x-internal-secret": process.env.INTERNAL_API_SECRET } : {}),
+      },
+      body: JSON.stringify({
+        callbackQueryId: cq.id,
+        data: cq.data,
+        chatId: chatId.toString(),
+        messageId: cq.message?.message_id,
+      }),
+    });
+  } catch {
+    // השרת לא זמין — הכפתור בטלגרם פשוט יפסיק להסתובב
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -24,6 +52,11 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
+    return NextResponse.json({ ok: true });
+  }
+
+  if (body?.callback_query) {
+    await forwardCallbackQuery(body.callback_query);
     return NextResponse.json({ ok: true });
   }
 

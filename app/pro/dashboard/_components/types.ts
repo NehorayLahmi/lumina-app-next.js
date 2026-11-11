@@ -5,6 +5,8 @@ export interface Lead {
   city: string;
   profession: string;
   status: string;
+  jobClosed: boolean | null;
+  jobClosedAt: string | null;
   createdAt: string;
 }
 
@@ -16,6 +18,8 @@ export interface Call {
   status: string;
   recordingUrl: string | null;
   type: "PHONE" | "WHATSAPP";
+  jobClosed: boolean | null;
+  jobClosedAt: string | null;
   createdAt: string;
 }
 

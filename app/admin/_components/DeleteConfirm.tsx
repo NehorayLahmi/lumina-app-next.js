@@ -3,11 +3,11 @@
 import { C } from "./constants";
 import { Modal } from "./Modal";
 
-export function DeleteConfirm({ name, onConfirm, onCancel, busy, errorMsg }: {
-  name: string; onConfirm: () => void; onCancel: () => void; busy: boolean; errorMsg: string;
+export function DeleteConfirm({ name, onConfirm, onCancel, busy, errorMsg, title = "מחיקת נציג" }: {
+  name: string; onConfirm: () => void; onCancel: () => void; busy: boolean; errorMsg: string; title?: string;
 }) {
   return (
-    <Modal title="מחיקת נציג" onClose={onCancel}>
+    <Modal title={title} onClose={onCancel}>
       <p style={{ fontSize: 14, color: C.onSurfVar, marginBottom: 20, textAlign: "center" }}>
         האם למחוק את <strong style={{ color: C.onSurface }}>{name}</strong>? פעולה זו אינה הפיכה.
       </p>

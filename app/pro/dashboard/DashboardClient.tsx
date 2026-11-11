@@ -74,6 +74,16 @@ export default function DashboardClient({ email, proId }: Props) {
     setToggling(false);
   }
 
+  function updateJobStatus(kind: "lead" | "call", id: string, jobClosed: boolean | null) {
+    const jobClosedAt = jobClosed === null ? null : new Date().toISOString();
+    setPro((prev) => {
+      if (!prev) return prev;
+      return kind === "lead"
+        ? { ...prev, leads: prev.leads.map((l) => l.id === id ? { ...l, jobClosed, jobClosedAt } : l) }
+        : { ...prev, calls: prev.calls.map((c) => c.id === id ? { ...c, jobClosed, jobClosedAt } : c) };
+    });
+  }
+
   async function handleLogout() {
     if (isAdminView) {
       router.push("/admin?tab=pros");
@@ -181,7 +191,13 @@ export default function DashboardClient({ email, proId }: Props) {
             editHref={isAdminView ? `/admin/pros/${proId}/edit` : "/pro/edit"}
           />
         )}
-        {tab === "activity" && <ActivityTab activity={activity} />}
+        {tab === "activity" && (
+          <ActivityTab
+            activity={activity}
+            jobApiBase={isAdminView ? "/api/admin/job-status" : "/api/pro/job-status"}
+            onJobChange={updateJobStatus}
+          />
+        )}
         {tab === "profile"  && <ProfileTab pro={pro} email={email} toggling={toggling} onToggle={toggleStatus} onLogout={handleLogout} />}
       </main>
 

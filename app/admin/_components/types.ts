@@ -41,6 +41,8 @@ export interface Call {
   status: string;
   recordingUrl: string | null;
   type: "PHONE" | "WHATSAPP";
+  jobClosed: boolean | null;
+  jobClosedAt: string | null;
   proId: string | null;
   createdAt: string;
   pro: { firstName: string; lastName: string; phone: string; city: string; profession: string } | null;
@@ -53,6 +55,8 @@ export interface Lead {
   city: string;
   profession: string;
   status: string;
+  jobClosed: boolean | null;
+  jobClosedAt: string | null;
   proId: string | null;
   createdAt: string;
   pro: { firstName: string; lastName: string; phone: string; city: string; profession: string } | null;
@@ -60,3 +64,11 @@ export interface Lead {
 
 export type Tab = "overview" | "pros" | "pages" | "traffic";
 export type TrafficSub = "calls" | "leads";
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

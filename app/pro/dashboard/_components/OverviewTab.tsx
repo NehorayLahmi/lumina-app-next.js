@@ -1,10 +1,27 @@
 "use client";
 
+import type React from "react";
+import { useState } from "react";
 import { CITIES, PROFESSIONS } from "@/lib/options";
+import { countsInRange, labelsInRange, trendPath, presetRange, clampRange } from "@/lib/trendChart";
 import { C } from "./constants";
 import { labelOf, formatDate } from "./helpers";
 import { StatusBadge } from "./StatusBadge";
+import { JobStatusBadge } from "@/components/JobStatusBadge";
 import type { ProData, ActivityItem, Call, Lead } from "./types";
+
+const RANGE_PRESETS = [
+  { label: "7 ימים", days: 7 },
+  { label: "30 יום", days: 30 },
+  { label: "90 יום", days: 90 },
+];
+
+const rangeInput: React.CSSProperties = {
+  height: 28, borderRadius: 7, padding: "0 8px", fontSize: 11,
+  background: "rgba(21,23,28,0.6)", border: `1px solid ${C.outlineVar}55`,
+  color: C.onSurface, outline: "none", direction: "ltr", colorScheme: "dark",
+  fontFamily: "inherit", boxSizing: "border-box",
+};
 
 interface Props {
   pro: ProData;
@@ -17,6 +34,11 @@ interface Props {
 }
 
 export function OverviewTab({ pro, monthlyLeads, monthlyCalls, monthlyTotal, activity, onSwitchActivity, editHref }: Props) {
+  const [range, setRange] = useState(() => presetRange(7));
+  const [rangeFrom, rangeTo] = clampRange(new Date(`${range.from}T00:00:00`), new Date(`${range.to}T00:00:00`));
+  const activityTrend = trendPath(countsInRange([...pro.leads, ...pro.calls], rangeFrom, rangeTo), 400, 150, 10);
+  const trendLabels = labelsInRange(rangeFrom, rangeTo);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
@@ -122,26 +144,54 @@ export function OverviewTab({ pro, monthlyLeads, monthlyCalls, monthlyTotal, act
       <section className="pro-glass pro-fade" style={{ borderRadius: 32, padding: "20px 20px 12px", animationDelay: "0.3s" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <h3 style={{ fontFamily: "var(--font-outfit), 'Outfit', sans-serif", fontSize: 18, fontWeight: 700, color: C.onSurface }}>מגמות תנועה</h3>
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.tertiary, boxShadow: `0 0 8px ${C.tertiary}` }} />
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.surfHighest }} />
-          </div>
+          <span style={{ fontSize: 11, fontWeight: 700, color: C.tertiary }}>
+            {countsInRange([...pro.leads, ...pro.calls], rangeFrom, rangeTo).reduce((a, b) => a + b, 0)} בטווח
+          </span>
         </div>
+
+        {/* Range controls */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+          <div style={{ display: "flex", background: `${C.outlineVar}33`, borderRadius: 10, padding: 3, gap: 3 }}>
+            {RANGE_PRESETS.map((p) => {
+              const active = range.from === presetRange(p.days).from && range.to === presetRange(p.days).to;
+              return (
+                <button
+                  key={p.days}
+                  onClick={() => setRange(presetRange(p.days))}
+                  style={{ height: 28, padding: "0 12px", borderRadius: 7, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 700, background: active ? C.surfHighest : "transparent", color: active ? C.onSurface : C.onSurfVar, transition: "all 0.2s" }}
+                >
+                  {p.label}
+                </button>
+              );
+            })}
+          </div>
+          <input type="date" value={range.from} max={range.to} onChange={(e) => setRange((r) => ({ ...r, from: e.target.value }))} style={rangeInput} />
+          <span style={{ color: C.onSurfVar, fontSize: 11, alignSelf: "center" }}>—</span>
+          <input type="date" value={range.to} min={range.from} onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))} style={rangeInput} />
+        </div>
+
         <div style={{ height: 160, width: "100%", position: "relative" }}>
-          <svg width="100%" height="100%" viewBox="0 0 400 150" style={{ overflow: "visible" }}>
+          <svg width="100%" height="100%" viewBox="0 0 400 150" style={{ overflow: "visible", direction: "ltr" }}>
             <defs>
               <linearGradient id="cg" x1="0" x2="0" y1="0" y2="1">
                 <stop offset="0%" stopColor={C.tertiary} stopOpacity="0.3" />
                 <stop offset="100%" stopColor={C.tertiary} stopOpacity="0" />
               </linearGradient>
             </defs>
-            <path d="M400,120 Q350,110 320,70 T240,50 T160,90 T80,40 T0,20 L0,150 L400,150 Z" fill="url(#cg)" />
-            <path d="M400,120 Q350,110 320,70 T240,50 T160,90 T80,40 T0,20" fill="none" stroke={C.tertiary} strokeWidth="2.5" strokeLinecap="round" />
-            <circle cx="0" cy="20" r="4" fill={C.tertiary} />
+            <path d={activityTrend.area} fill="url(#cg)" />
+            <path d={activityTrend.line} fill="none" stroke={C.tertiary} strokeWidth="2.5" strokeLinecap="round" />
+            {activityTrend.points.length > 0 && (
+              <circle
+                cx={activityTrend.points[activityTrend.points.length - 1].x}
+                cy={activityTrend.points[activityTrend.points.length - 1].y}
+                r="4"
+                fill={C.tertiary}
+              />
+            )}
           </svg>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-            {["שני","שלישי","רביעי","חמישי","שישי","שבת","ראשון"].map((d) => (
-              <span key={d} style={{ fontSize: 9, fontWeight: 700, color: "rgba(205,195,206,0.4)" }}>{d}</span>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, direction: "ltr" }}>
+            {trendLabels.map((d, i) => (
+              <span key={i} style={{ fontSize: 9, fontWeight: 700, color: "rgba(205,195,206,0.4)" }}>{d}</span>
             ))}
           </div>
         </div>
@@ -171,7 +221,10 @@ export function OverviewTab({ pro, monthlyLeads, monthlyCalls, monthlyTotal, act
                     <p style={{ fontSize: 11, color: C.onSurfVar }}>{formatDate(item.createdAt)}</p>
                   </div>
                 </div>
-                <StatusBadge status={item.status} />
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  <JobStatusBadge jobClosed={item.jobClosed} />
+                  <StatusBadge status={item.status} />
+                </div>
               </div>
             );
           })}
