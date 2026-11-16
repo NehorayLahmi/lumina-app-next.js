@@ -33,6 +33,65 @@ export function TrafficTab({ pros, onJobChange }: { pros: Pro[]; onJobChange?: (
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
+  // ─── בחירה מרובה ומחיקה בבת אחת ─────────────────────────────────────────────
+  // הבחירה נשמרת במעבר בין עמודים, ומתאפסת כשמחליפים לשונית (שיחות/לידים) או סינון.
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkConfirm, setBulkConfirm] = useState(false);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkError, setBulkError] = useState("");
+
+  useEffect(() => { setSelected(new Set()); }, [sub, search, filterPro, dateFrom, dateTo]);
+
+  const pageIds = items.map(it => it.id);
+  const allOnPageSelected = pageIds.length > 0 && pageIds.every(id => selected.has(id));
+  const someOnPageSelected = pageIds.some(id => selected.has(id));
+  const kindLabel = sub === "leads" ? "לידים" : "שיחות";
+
+  function toggleOne(id: string) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAllOnPage() {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (allOnPageSelected) pageIds.forEach(id => next.delete(id));
+      else pageIds.forEach(id => next.add(id));
+      return next;
+    });
+  }
+
+  async function confirmBulkDelete() {
+    setBulkBusy(true);
+    setBulkError("");
+    try {
+      const res = await fetch(`/api/admin/${sub}/bulk-delete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: Array.from(selected) }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        setBulkError(d.message ?? "שגיאה במחיקה");
+        return;
+      }
+      const deletedAllOnPage = pageIds.every(id => selected.has(id));
+      setSelected(new Set());
+      setBulkConfirm(false);
+      setExpandedId(null);
+      if (deletedAllOnPage && page > 1) setPage(p => p - 1);
+      else setReloadKey(k => k + 1);
+      onJobChange?.(); // ייתכן שנמחקו עסקאות סגורות — מרעננים את ההכנסה
+    } catch {
+      setBulkError("שגיאת חיבור לשרת");
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
   function setItemJob(id: string, jobClosed: boolean | null) {
     const jobClosedAt = jobClosed === null ? null : new Date().toISOString();
     setItems(prev => prev.map(it => it.id === id ? { ...it, jobClosed, jobClosedAt } : it));
@@ -179,7 +238,41 @@ export function TrafficTab({ pros, onJobChange }: { pros: Pro[]; onJobChange?: (
 </div>
       </div>
 
-      <p style={{ fontSize: 12, color: C.onSurfVar, margin: 0 }}>{total.toLocaleString()} תוצאות</p>
+      {/* Results count + selection bar */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 32 }}>
+        {items.length > 0 && (
+          <label style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: C.onSurfVar, cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={allOnPageSelected}
+              ref={el => { if (el) el.indeterminate = !allOnPageSelected && someOnPageSelected; }}
+              onChange={toggleAllOnPage}
+              aria-label="בחר הכל בעמוד"
+              style={checkboxStyle}
+            />
+            בחר הכל בעמוד
+          </label>
+        )}
+        <p style={{ fontSize: 12, color: C.onSurfVar, margin: 0 }}>{total.toLocaleString()} תוצאות</p>
+        {selected.size > 0 && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto", flexWrap: "wrap" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: C.onSurface }}>נבחרו {selected.size}</span>
+            <button
+              onClick={() => { setBulkError(""); setBulkConfirm(true); }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 32, padding: "0 12px", borderRadius: 8, border: `1px solid ${C.error}55`, background: `${C.error}11`, color: C.error, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
+              מחק נבחרים ({selected.size})
+            </button>
+            <button
+              onClick={() => setSelected(new Set())}
+              style={{ height: 32, padding: "0 12px", borderRadius: 8, border: `1px solid ${C.outlineVar}`, background: "transparent", color: C.onSurfVar, fontSize: 12, cursor: "pointer" }}
+            >
+              נקה בחירה
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Items */}
       <div style={{ display: "flex", flexDirection: "column", gap: 6, opacity: loading ? 0.5 : 1, transition: "opacity 0.15s" }}>
@@ -191,6 +284,7 @@ export function TrafficTab({ pros, onJobChange }: { pros: Pro[]; onJobChange?: (
             <div key={c.id} style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${open ? accentColor + "66" : C.outlineVar + "33"}`, transition: "border-color 0.2s" }}>
               <div className="pro-glass" onClick={() => setExpandedId(open ? null : c.id)} style={{ padding: "10px 16px", cursor: "pointer", borderRight: `3px solid ${accentColor}`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <RowCheckbox checked={selected.has(c.id)} onToggle={() => toggleOne(c.id)} label={`בחירת שיחה ${isWa ? c.destinationPhone : (c.callerPhone || "")}`} />
                   {isWa
                     ? <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366" style={{ flexShrink: 0 }} aria-label="WhatsApp"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                     : <span className="material-symbols-outlined" style={{ fontSize: 16, color: C.tertiary }}>call</span>
@@ -242,9 +336,12 @@ export function TrafficTab({ pros, onJobChange }: { pros: Pro[]; onJobChange?: (
           return (
             <div key={l.id} style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${open ? C.secondary + "66" : C.outlineVar + "33"}`, transition: "border-color 0.2s" }}>
               <div className="pro-glass" onClick={() => setExpandedId(open ? null : l.id)} style={{ padding: "10px 16px", cursor: "pointer", borderRight: `3px solid ${C.secondary}`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: C.onSurface, margin: 0 }}>{l.clientName}</p>
-                  <p style={{ fontSize: 11, color: C.onSurfVar, margin: 0 }}>{l.clientPhone} · {labelOf(CITIES, l.city)} / {labelOf(PROFESSIONS, l.profession)}</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <RowCheckbox checked={selected.has(l.id)} onToggle={() => toggleOne(l.id)} label={`בחירת ליד ${l.clientName}`} />
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: C.onSurface, margin: 0 }}>{l.clientName}</p>
+                    <p style={{ fontSize: 11, color: C.onSurfVar, margin: 0 }}>{l.clientPhone} · {labelOf(CITIES, l.city)} / {labelOf(PROFESSIONS, l.profession)}</p>
+                  </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
@@ -315,7 +412,36 @@ export function TrafficTab({ pros, onJobChange }: { pros: Pro[]; onJobChange?: (
           errorMsg={deleteError}
         />
       )}
+
+      {bulkConfirm && (
+        <DeleteConfirm
+          title={`מחיקת ${selected.size} ${kindLabel}`}
+          name={`${selected.size} ${kindLabel} שנבחרו`}
+          onConfirm={confirmBulkDelete}
+          onCancel={() => setBulkConfirm(false)}
+          busy={bulkBusy}
+          errorMsg={bulkError}
+        />
+      )}
     </div>
+  );
+}
+
+const checkboxStyle: React.CSSProperties = {
+  width: 18, height: 18, cursor: "pointer", accentColor: C.tertiary, flexShrink: 0, margin: 0,
+};
+
+/** תיבת בחירה בשורה — לא פותחת/סוגרת את השורה כשלוחצים עליה */
+function RowCheckbox({ checked, onToggle, label }: { checked: boolean; onToggle: () => void; label: string }) {
+  return (
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={onToggle}
+      onClick={e => e.stopPropagation()}
+      aria-label={label}
+      style={checkboxStyle}
+    />
   );
 }
 
