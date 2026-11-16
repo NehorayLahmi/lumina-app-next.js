@@ -52,6 +52,20 @@ export function ProsTab({ pros, onRefresh }: { pros: Pro[]; onRefresh: () => voi
       labelOf(CITIES, p.city).includes(q) || labelOf(PROFESSIONS, p.profession).includes(q);
   });
 
+  const [unlinkingId, setUnlinkingId] = useState<string | null>(null);
+  async function disconnectTelegram(pro: Pro) {
+    if (!window.confirm(`לנתק את ${pro.firstName} ${pro.lastName} מהטלגרם? הנציג יפסיק לקבל התראות עד שיתחבר מחדש.`)) return;
+    setUnlinkingId(pro.id);
+    const res = await fetch(`/api/admin/pros/${pro.id}/telegram`, { method: "DELETE" });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      window.alert(d.message ?? "שגיאה בניתוק הטלגרם");
+    }
+    if (msgProId === pro.id) setMsgProId(null);
+    setUnlinkingId(null);
+    onRefresh();
+  }
+
   async function toggle(pro: Pro) {
     setTogglingId(pro.id);
     await fetch(`/api/admin/pros/${pro.id}/toggle`, { method: "PATCH" });
@@ -107,6 +121,11 @@ export function ProsTab({ pros, onRefresh }: { pros: Pro[]; onRefresh: () => voi
                 {pro.telegramChatId && (
                   <button onClick={() => openMsg(pro)} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 6px" }} title="שלח הודעה בטלגרם">
                     <span className="material-symbols-outlined" style={{ fontSize: 16, color: msgProId === pro.id ? C.primary : C.onSurfVar, fontVariationSettings: "'FILL' 1" }}>send</span>
+                  </button>
+                )}
+                {pro.telegramChatId && (
+                  <button onClick={() => disconnectTelegram(pro)} disabled={unlinkingId === pro.id} style={{ background: "none", border: "none", cursor: "pointer", color: C.secondary, fontSize: 11, fontWeight: 700, padding: "4px 6px", opacity: unlinkingId === pro.id ? 0.5 : 1 }} title="ניתוק הנציג מבוט הטלגרם">
+                    {unlinkingId === pro.id ? "מנתק..." : "נתק טלגרם"}
                   </button>
                 )}
                 <button onClick={() => { setDeleteErr(""); setDeleting(pro); }} style={{ background: "none", border: "none", cursor: "pointer", color: C.error, fontSize: 11, fontWeight: 700, padding: "4px 6px" }}>מחיקה</button>

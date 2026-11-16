@@ -35,7 +35,9 @@ export const E2E = {
     city: "e2e-ui-city",
     profession: "e2e-ui-service",
   },
-  testPhones: ["0509990001", "0509990002"],
+  /** מספר המנהל שמוצג בדף נחיתה של נציג כבוי (ADMIN_FALLBACK_PHONE בשרת הבדיקות) */
+  adminFallbackPhone: "+972509990099",
+  testPhones: ["0509990001", "0509990002", "+972509990099"],
 };
 
 /** המזהים שנוצרו ב-global-setup (נקראים מ-process.env בזמן הבדיקות) */

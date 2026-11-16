@@ -43,6 +43,18 @@ export function ProfileTab({ pro, email, toggling, onToggle, onLogout }: Props) 
     setGenerating(false);
   };
 
+  const [disconnecting, setDisconnecting] = useState(false);
+  const handleDisconnect = async () => {
+    if (!window.confirm("לנתק את הטלגרם? לא תקבל יותר התראות על לידים ושיחות עד שתתחבר מחדש.")) return;
+    setDisconnecting(true); setGenError("");
+    try {
+      const res = await fetch("/api/pro/disconnect-telegram", { method: "POST" });
+      if (res.ok) { setTelegramId(null); setCode(null); }
+      else { const data = await res.json().catch(() => ({})); setGenError(data.message ?? "שגיאה בניתוק"); }
+    } catch { setGenError("שגיאת חיבור"); }
+    setDisconnecting(false);
+  };
+
   const checkLinked = async () => {
     try {
       const res  = await fetch("/api/pro/dashboard");
@@ -124,9 +136,17 @@ export function ProfileTab({ pro, email, toggling, onToggle, onLogout }: Props) 
             </p>
           </div>
           {telegramId && (
-            <span className="material-symbols-outlined" style={{ fontSize: 18, color: C.tertiary, marginRight: "auto", fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+            <button
+              onClick={handleDisconnect}
+              disabled={disconnecting}
+              style={{ marginRight: "auto", background: "rgba(255,180,171,0.08)", border: "1px solid rgba(255,180,171,0.3)", borderRadius: 10, padding: "6px 12px", color: "#ffb4ab", fontSize: 12, fontWeight: 600, cursor: disconnecting ? "not-allowed" : "pointer", opacity: disconnecting ? 0.6 : 1, display: "flex", alignItems: "center", gap: 4 }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 15 }}>link_off</span>
+              {disconnecting ? "מנתק..." : "נתק טלגרם"}
+            </button>
           )}
         </div>
+        {telegramId && genError && <p style={{ fontSize: 12, color: "#ffb4ab", margin: "8px 0 0" }}>{genError}</p>}
         {!telegramId && (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {code ? (

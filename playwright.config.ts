@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 import path from "node:path";
-import { ADMIN_CHAT_ID, BACKEND_PORT, BACKEND_URL, FRONTEND_PORT, FRONTEND_URL } from "./e2e/fixture";
+import { ADMIN_CHAT_ID, BACKEND_PORT, BACKEND_URL, E2E, FRONTEND_PORT, FRONTEND_URL } from "./e2e/fixture";
 
 /**
  * בדיקות E2E לכל המערכת: האתר (Next) + השרת (Express) + ה-DB.
@@ -46,6 +46,7 @@ export default defineConfig({
         NODE_ENV: "test",
         TELEGRAM_BOT_TOKEN: FAKE_TELEGRAM_TOKEN,
         TELEGRAM_CHAT_ID: String(ADMIN_CHAT_ID),
+        ADMIN_FALLBACK_PHONE: E2E.adminFallbackPhone,
         FRONTEND_URL,
       },
     },
