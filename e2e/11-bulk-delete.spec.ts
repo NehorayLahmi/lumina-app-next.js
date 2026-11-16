@@ -26,7 +26,44 @@ async function openTraffic(page: Page, sub: "שיחות" | "לידים") {
   await page.getByRole("button", { name: sub, exact: true }).click();
 }
 
+/** כפתור "בחירה" / "סיום בחירה" שמעל הרשימה */
+function selectModeButton(page: Page) {
+  return page.locator("button[aria-pressed]");
+}
+
+async function enterSelectMode(page: Page) {
+  await selectModeButton(page).click();
+  await expect(selectModeButton(page)).toHaveAttribute("aria-pressed", "true");
+}
+
 test.describe("מחיקה מרובה בלשונית תנועה", () => {
+  test("מצב בחירה סגור כברירת מחדל ונפתח/נסגר בכפתור 'בחירה'", async ({ page, request }) => {
+    const name = uniqueName("Mode Lead");
+    await submitLead(request, { clientName: name, clientPhone: "0509990031", city: E2E.pro.city, profession: E2E.pro.profession });
+
+    await openTraffic(page, "לידים");
+    await page.getByPlaceholder("חיפוש...").fill(name);
+    await expect(page.getByText(name, { exact: true })).toBeVisible();
+
+    // ברירת מחדל: אין תיבות בחירה ואין "בחר הכל"
+    await expect(selectModeButton(page)).toHaveText(/בחירה/);
+    await expect(selectModeButton(page)).toHaveAttribute("aria-pressed", "false");
+    await expect(page.getByRole("checkbox")).toHaveCount(0);
+
+    await enterSelectMode(page);
+    await expect(selectModeButton(page)).toHaveText(/סיום בחירה/);
+    await expect(page.getByRole("checkbox", { name: "בחר הכל בעמוד" })).toBeVisible();
+    await page.getByRole("checkbox", { name: `בחירת ליד ${name}` }).check();
+    await expect(page.getByText("נבחרו 1")).toBeVisible();
+
+    // סגירת מצב הבחירה מסתירה את התיבות ומנקה את הבחירה
+    await selectModeButton(page).click();
+    await expect(page.getByRole("checkbox")).toHaveCount(0);
+    await expect(page.getByText("נבחרו")).toHaveCount(0);
+    await enterSelectMode(page);
+    await expect(page.getByRole("checkbox", { name: `בחירת ליד ${name}` })).not.toBeChecked();
+  });
+
   test("בחירת שני לידים מתוך שלושה ומחיקתם בפעם אחת", async ({ page, request }) => {
     const tag = uniqueName("Bulk");
     const names = [`${tag} one`, `${tag} two`, `${tag} three`];
@@ -38,6 +75,7 @@ test.describe("מחיקה מרובה בלשונית תנועה", () => {
     await page.getByPlaceholder("חיפוש...").fill(tag);
     await expect(page.getByText("3 תוצאות")).toBeVisible();
 
+    await enterSelectMode(page);
     await page.getByRole("checkbox", { name: `בחירת ליד ${names[0]}` }).check();
     await page.getByRole("checkbox", { name: `בחירת ליד ${names[1]}` }).check();
     await expect(page.getByText("נבחרו 2")).toBeVisible();
@@ -52,6 +90,8 @@ test.describe("מחיקה מרובה בלשונית תנועה", () => {
     await expect(page.getByText("1 תוצאות")).toBeVisible();
     await expect(page.getByText(names[2], { exact: true })).toBeVisible();
     await expect(page.getByText("נבחרו")).toHaveCount(0);
+    // אחרי מחיקה מצב הבחירה נסגר
+    await expect(page.getByRole("checkbox")).toHaveCount(0);
 
     expect(await findLeadByName(admin, names[0])).toBeUndefined();
     expect(await findLeadByName(admin, names[1])).toBeUndefined();
@@ -73,6 +113,7 @@ test.describe("מחיקה מרובה בלשונית תנועה", () => {
     await page.locator("select").filter({ hasText: "כל הנציגים" }).selectOption(ids().proId);
     await expect(page.getByText(`${before.length} תוצאות`)).toBeVisible();
 
+    await enterSelectMode(page);
     await page.getByRole("checkbox", { name: "בחר הכל בעמוד" }).check();
     await expect(page.getByText(`נבחרו ${before.length}`)).toBeVisible();
 
@@ -90,6 +131,7 @@ test.describe("מחיקה מרובה בלשונית תנועה", () => {
 
     await openTraffic(page, "לידים");
     await page.getByPlaceholder("חיפוש...").fill(name);
+    await enterSelectMode(page);
     await page.getByRole("checkbox", { name: `בחירת ליד ${name}` }).check();
     await page.getByRole("button", { name: /מחק נבחרים/ }).click();
     await page.getByRole("button", { name: "ביטול" }).click();
