@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getAuthUser } from "@/lib/auth";
 import { BACKEND_URL as BACKEND } from "@/lib/config";
 
@@ -9,7 +10,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ message: "גישה נדחתה" }, { status: 403 });
   }
   try {
-    const res = await fetch(`${BACKEND}/api/pros/${id}`, { cache: "no-store" });
+    const token = (await cookies()).get("auth_token")?.value;
+    const res = await fetch(`${BACKEND}/api/pros/${id}`, {
+      cache: "no-store",
+      headers: { Authorization: `Bearer ${token}` },
+    });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
   } catch {

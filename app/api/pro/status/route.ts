@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getAuthUser } from "@/lib/auth";
 import { BACKEND_URL as BACKEND } from "@/lib/config";
 
@@ -9,9 +10,10 @@ export async function PATCH(req: NextRequest) {
   }
   try {
     const body = await req.json();
+    const token = (await cookies()).get("auth_token")?.value;
     const res = await fetch(`${BACKEND}/api/pros/${user.proProfileId}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify(body),
     });
     const data = await res.json();

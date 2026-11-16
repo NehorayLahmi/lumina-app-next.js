@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getAuthUser } from "@/lib/auth";
 import { BACKEND_URL as BACKEND } from "@/lib/config";
 
@@ -8,8 +9,10 @@ export async function GET() {
     return NextResponse.json({ message: "לא מחובר" }, { status: 401 });
   }
   try {
+    const token = (await cookies()).get("auth_token")?.value;
     const res = await fetch(`${BACKEND}/api/pros/${user.proProfileId}`, {
       cache: "no-store",
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       // Pro was deleted or no longer exists — clear session
